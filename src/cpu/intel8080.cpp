@@ -9,29 +9,24 @@
 #define M 6
 #define A 7
 
-#define STATUS_CARRY 0x01
-#define STATUS_AUX_CARRY 0x10
-#define STATUS_SIGN 0x80
-#define STATUS_ZERO 0x40
-#define STATUS_PARITY 0x04
-
-Intel8080::Intel8080() {
-	for (int i = 0; i <= 0xffff; i++) {
-		if (i < 8) {
-			reg[i] = 0;
-		}
-		memory[i] = 0;
-	}
-}
+#define STATUS_CARRY 		0x01
+#define STATUS_PARITY 		0x04
+#define STATUS_AUX_CARRY 	0x10
+#define STATUS_SIGN 		0x80
+#define STATUS_ZERO 		0x40
 
 Intel8080::~Intel8080() { }
 
 void Intel8080::loadProgram(program_t *program) {
-
+	for (int i = 0; i < program->size; i++) {
+		memory[i] = program->data[i];
+	}
 }
 
 void Intel8080::emulateCycle() {
-
+	uint8 op = getNextOp();
+	pc += 2;
+	decode(op);
 }
 
 uint8 Intel8080::getPixel(int x, int y) {
@@ -39,12 +34,17 @@ uint8 Intel8080::getPixel(int x, int y) {
 }
 
 uint8 Intel8080::getNextOp() {
-	return 0;
+	return memory[pc];
+}
+
+void Intel8080::decode(uint8 op) {
 }
 
 void Intel8080::NOP() { }
 
-void SHLD_A16();
+void SHLD_A16() {
+}
+
 void STA_A16();
 void RLC();
 void RAL();

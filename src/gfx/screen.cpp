@@ -1,6 +1,6 @@
 #include "gfx/screen.hpp"
 
-#include "cpu/chip8.hpp"
+#include "cpu/cpu.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -34,7 +34,7 @@ void Screen::initSDL() {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Error initialize SDL!!!\n");
 	} else {
-		window = SDL_CreateWindow("Chip8 Emulator - Anthony Benavente",
+		window = SDL_CreateWindow("Intel 8080 Emulator - Anthony Benavente",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			displayWidth, displayHeight,
 			SDL_WINDOW_SHOWN);

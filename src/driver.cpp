@@ -1,7 +1,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 
-#include "cpu/chip8.hpp"
+#include "cpu/intel8080.hpp"
 #include "gfx/screen.hpp"
 #include "machine/machine.hpp"
 #include "program/program.hpp"
