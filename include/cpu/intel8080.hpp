@@ -2,10 +2,11 @@
 #define INTEL8080_H
 
 #include "cpu/cpu.hpp"
+#include <stack>
 
-typedef uint8 unsigned char;
-typedef uint16 unsigned short;
-typedef uint32 unsigned int;
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
 
 class Intel8080 : public Cpu {
 
@@ -14,15 +15,15 @@ private:
 	uint8 reg[8];
 	uint16 pc;
 	uint16 sp;
-	uint8 io[0xff + 1];
+	// uint8 io[0xff + 1];
 
 	std::stack<uint16> stack;
 	uint8 memory[0xffff + 1];
-	uint8 gfx[256 * 224];
+	// uint8 gfx[256 * 224];
 	uint8 status;
 
 	uint8 getNextOp();
-	void opLookUp(uint8 op);
+	void decode(uint8 op);
 
 	void NOP();
 	void SHLD_A16();
@@ -155,7 +156,14 @@ private:
 public:
 	bool drawFlag;
 
-	Intel8080();
+	Intel8080() : inte(false), pc(0), sp(0) {
+		for (int i = 0; i <= 0xffff; i++) {
+			if (i < 8) {
+				reg[i] = 0;
+			}
+			memory[i] = 0;
+		}
+	};
 
 	~Intel8080();
 
@@ -165,6 +173,6 @@ public:
 
 	unsigned char getPixel(int x, int y) override;
 
-}
+};
 
 #endif
