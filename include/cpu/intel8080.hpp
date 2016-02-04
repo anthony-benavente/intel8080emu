@@ -9,8 +9,11 @@ typedef unsigned short uint16;
 typedef unsigned int uint32;
 
 class Intel8080 : public Cpu {
-
+#ifdef TESTING
+public:
+#else
 private:
+#endif
 	bool inte;
 	uint8 reg[8];
 	uint16 pc;
@@ -153,8 +156,9 @@ private:
 	void ORA(uint8 reg);
 	void CMP(uint8 reg);
 
+#ifndef TESTING
 public:
-	bool drawFlag;
+#endif
 
 	Intel8080() : inte(false), pc(0), sp(0) {
 		for (int i = 0; i <= 0xffff; i++) {
@@ -163,9 +167,7 @@ public:
 			}
 			memory[i] = 0;
 		}
-	};
-
-	~Intel8080();
+	}
 
 	void loadProgram(program_t *program) override;
 
