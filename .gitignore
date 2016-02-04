@@ -30,3 +30,8 @@
 # Folders
 bin/
 build/
+
+cxxtests/
+
+testrunner.cpp
+testresults.log
