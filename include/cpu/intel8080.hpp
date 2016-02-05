@@ -20,6 +20,7 @@ private:
 	uint8 reg[8];
 	uint16 pc;
 	uint16 sp;
+	uint32 cycles;
 	// uint8 io[0xff + 1];
 
 	std::stack<uint16> stack;
