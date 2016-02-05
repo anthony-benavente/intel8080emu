@@ -1,33 +1,23 @@
 #include "cxxtest/TestSuite.h"
 
+#include "program/program.hpp"
 #include "cpu/intel8080.hpp"
 
 class Intel8080TestSuite : public CxxTest::TestSuite {
-	static Intel8080 cpu;
-	static program_t *program;
-
 public:
-    static Intel8080TestSuite* createSuite() {
-		printf("Got here");
-		program = getProgram("/home/anthony/programming/cpp/intel8080/res/invaders.rom");
-		cpu.loadProgram(program);
-		return new Intel8080TestSuite();
-    }
+	Intel8080 cpu;
+	program_t *program;
+	bool initialized = false;
 
-	static void destroySuite(Intel8080TestSuite *suite) {
-		delete suite;
-		free_program(program);
-	}
-
-	void destroySuite() {
-		free_program(program);
+	void setUp() {
+		if (!initialized) {
+			initialized = true;
+			program = getProgram("../res/invaders.rom");
+			cpu.loadProgram(program);
+		}
 	}
 
 	void test_getNextOp(void) {
-		for (int i = 0; i < program->size; i++) {
-			printf("(0x%x) ", program->data[i]);
-			if (i % 20 == 0) printf("\n");
-		}
 		TS_ASSERT(true);
 	}
 	void test_decode() {
