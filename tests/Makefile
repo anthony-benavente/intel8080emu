@@ -1,15 +1,16 @@
 CC := g++
-TARGET := runner
-CFLAGS := -Wall -std=c++11
+TARGET := testrunner
+CFLAGS := -g -Wall -std=c++11
 TESTS_DIR := ../cxxtests/
 SRCEXT := cpp
-SOURCES := $(shell find ../src -type f -name *.$(SRCEXT))
+SOURCES := ../src/cpu/intel8080.cpp ../src/gfx/screen.cpp ../src/machine/machine.cpp ../src/program/program.cpp
 OBJECTS := $(patsubst ../src/%, ../build/%, $(SOURCES:.$(SRCEXT)=.o))
 
-all:
-	make testbuild
-	./maketests.sh
+all: testbuild testrunner
 
 testbuild:
-	$(TESTS_DIR)/bin/cxxtestgen --error-printer -o testrunner.cpp tests_intel8080.h
-	$(CC) $(CFLAGS) -I$(TESTS_DIR) -I../include -DTESTING -c -o testrunner.o testrunner.cpp
+	$(TESTS_DIR)/bin/cxxtestgen -f --error-printer -o testrunner.cpp tests_intel8080.h
+	$(CC) $(CFLAGS) -I$(TESTS_DIR) -I../include -DTESTING -c -o $(TARGET).o $(TARGET).cpp
+
+testrunner:
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) testrunner.o -lSDL2
