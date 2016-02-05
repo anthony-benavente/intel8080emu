@@ -4,27 +4,36 @@
 #include "cpu/intel8080.hpp"
 
 class Intel8080TestSuite : public CxxTest::TestSuite {
-public:
 	Intel8080 cpu;
-	program_t *program;
-	bool initialized = false;
-
+public:
 	void setUp() {
-		if (!initialized) {
-			initialized = true;
-			program = getProgram("../res/invaders.rom");
-			cpu.loadProgram(program);
-		}
+		cpu.loadProgram(getProgram("../res/invaders.rom"));
 	}
-
 	void test_getNextOp(void) {
-		TS_ASSERT(true);
+		cpu.getNextOp();
+		cpu.getNextOp();
+		cpu.getNextOp();
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x03);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xc3);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x4);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xd4);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x5);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x18);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x6);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x00);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x7);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x00);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x8);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xf5);
+		cpu.pc = 0;
 	}
 	void test_decode() {
 	    TS_ASSERT(false);
 	}
 	void test_NOP() {
-	    TS_ASSERT(false);
+		TS_ASSERT_EQUALS(cpu.sp, 0);
+		cpu.NOP();
+		TS_ASSERT_EQUALS(cpu.sp, 0);
 	}
 	void test_SHLD_A16() {
 	    TS_ASSERT(false);

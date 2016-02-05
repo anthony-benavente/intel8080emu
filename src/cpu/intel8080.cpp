@@ -1,5 +1,9 @@
 #include "cpu/intel8080.hpp"
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 #define B 0
 #define C 1
 #define D 2
@@ -23,7 +27,6 @@ void Intel8080::loadProgram(program_t *program) {
 
 void Intel8080::emulateCycle() {
 	uint8 op = getNextOp();
-	pc += 2;
 	decode(op);
 }
 
@@ -31,8 +34,8 @@ unsigned char Intel8080::getPixel(int x, int y) {
 	return 0;
 }
 
-unsigned char Intel8080::getNextOp() {
-	return memory[pc];
+uint8 Intel8080::getNextOp() {
+	return memory[pc++];
 }
 
 void Intel8080::decode(uint8 op) {

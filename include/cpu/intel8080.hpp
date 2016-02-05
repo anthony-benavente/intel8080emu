@@ -12,8 +12,10 @@ class Intel8080 : public Cpu {
 #ifdef TESTING
 public:
 #else
+
 private:
 #endif
+
 	bool inte;
 	uint8 reg[8];
 	uint16 pc;
@@ -27,6 +29,7 @@ private:
 
 	uint8 getNextOp();
 	void decode(uint8 op);
+	uint16 getPc() { return pc; }
 
 	void NOP();
 	void SHLD_A16();
