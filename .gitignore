@@ -35,3 +35,4 @@ cxxtests/
 
 testrunner.cpp
 testresults.log
+testrunner
