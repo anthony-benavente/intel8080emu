@@ -6,7 +6,12 @@ SRCEXT := cpp
 SOURCES := ../src/cpu/intel8080.cpp ../src/gfx/screen.cpp ../src/machine/machine.cpp ../src/program/program.cpp
 OBJECTS := $(patsubst ../src/%, ../build/%, $(SOURCES:.$(SRCEXT)=.o))
 
+default: clean all
+
 all: testbuild testrunner
+
+clean:
+	-rm testrunner.cpp testrunner.o testrunner;
 
 testbuild:
 	$(TESTS_DIR)/bin/cxxtestgen -f --error-printer -o testrunner.cpp tests_intel8080.h
