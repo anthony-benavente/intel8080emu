@@ -33,26 +33,9 @@ public:
 	void test_decode() {
 	    TS_ASSERT(false);
 	}
-
-	void test_NOP() {
-		TS_ASSERT_EQUALS(cpu.sp, 0);
-		TS_ASSERT_EQUALS(cpu.pc, 0);
-		TS_ASSERT_EQUALS(cpu.inte, false);
-		TS_ASSERT_EQUALS(cpu.status, 0);
-		for (int i = 0; i < 8; i++) {
-			TS_ASSERT_EQUALS(cpu.reg[i], 0);
-		}
-
-		cpu.NOP();
-
-		// NOP should have done nothing
-		TS_ASSERT_EQUALS(cpu.sp, 0);
-		TS_ASSERT_EQUALS(cpu.pc, 0);
-		TS_ASSERT_EQUALS(cpu.inte, false);
-		TS_ASSERT_EQUALS(cpu.status, 0);
-		for (int i = 0; i < 8; i++) {
-			TS_ASSERT_EQUALS(cpu.reg[i], 0);
-		}
+	
+	void test_RST() {
+	    TS_ASSERT(false);
 	}
 
 	/* -------------------------------------------- */
@@ -155,190 +138,212 @@ public:
 	/* /MOVE LOAD STORE Instructions
 	/* -------------------------------------------- */
 
-	void test_LXI_SP() {
-		TS_ASSERT(false);
-	}
-	void test_RLC() {
+	/* -------------------------------------------- */
+	/* STACK Instructions
+	/* -------------------------------------------- */
+	void test_PUSH() {
+		// Test pushing B,C to stack
+		// Test pushing H,L to stack
+		// Test pushing PSW to stack (A, status)
 	    TS_ASSERT(false);
 	}
-	void test_RAL() {
-	    TS_ASSERT(false);
-	}
-	void test_DAA() {
-	    TS_ASSERT(false);
-	}
-	void test_STC() {
-	    TS_ASSERT(false);
-	}
-	void test_RRC() {
-	    TS_ASSERT(false);
-	}
-	void test_RAR() {
-	    TS_ASSERT(false);
-	}
-	void test_CMA() {
-	    TS_ASSERT(false);
-	}
-	void test_CMC() {
-	    TS_ASSERT(false);
-	}
-	void test_HLT() {
-	    TS_ASSERT(false);
-	}
-	void test_RNZ() {
-	    TS_ASSERT(false);
-	}
-	void test_RNC() {
-	    TS_ASSERT(false);
-	}
-	void test_RPO() {
-	    TS_ASSERT(false);
-	}
-	void test_RP() {
-	    TS_ASSERT(false);
-	}
-	void test_JNZ() {
-	    TS_ASSERT(false);
-	}
-	void test_JNC() {
-	    TS_ASSERT(false);
-	}
-	void test_JPO() {
-	    TS_ASSERT(false);
-	}
-	void test_JP() {
-	    TS_ASSERT(false);
-	}
-	void test_JMP() {
-	    TS_ASSERT(false);
-	}
-	void test_OUT() {
-	    TS_ASSERT(false);
+	void test_POP() {
+		// Test popping from stack into B pair
+		// Test popping from stack into H pair
+		// Test popping from stack into PSW pair
 	}
 	void test_XTHL() {
-	    TS_ASSERT(false);
-	}
-	void test_DI() {
-	    TS_ASSERT(false);
-	}
-	void test_CNZ() {
-	    TS_ASSERT(false);
-	}
-	void test_CNC() {
-	    TS_ASSERT(false);
-	}
-	void test_CPO() {
-	    TS_ASSERT(false);
-	}
-	void test_CP() {
-	    TS_ASSERT(false);
-	}
-	void test_ADI() {
-	    TS_ASSERT(false);
-	}
-	void test_USI() {
-	    TS_ASSERT(false);
-	}
-	void test_ANI() {
-	    TS_ASSERT(false);
-	}
-	void test_ORI() {
-	    TS_ASSERT(false);
-	}
-	void test_RZ() {
-	    TS_ASSERT(false);
-	}
-	void test_RC() {
-	    TS_ASSERT(false);
-	}
-	void test_RPE() {
-	    TS_ASSERT(false);
-	}
-	void test_RM() {
-	    TS_ASSERT(false);
-	}
-	void test_RET() {
-	    TS_ASSERT(false);
-	}
-	void test_PCHL() {
+		// Test exchanging stack[sp, sp+1] with L,H respectively
 	    TS_ASSERT(false);
 	}
 	void test_SPHL() {
+		// Test value H << 8 | L getting loaded into stack pointer
+	    TS_ASSERT(false);
+	}
+	void test_LXI_SP() {
+		// Test sp becomes 3(data) << 8 | 2(data)
+		TS_ASSERT(false);
+	}
+	void test_INX_SP() {
+		// Test increase value of SP by 1
+	    TS_ASSERT(false);
+	}
+	void test_DCX_SP() {
+		// Test decrease value of SP by 1
+	    TS_ASSERT(false);
+	}
+	/* -------------------------------------------- */
+	/* /STACK Instructions
+	/* -------------------------------------------- */
+
+
+	/* -------------------------------------------- */
+	/* JUMP Instructions
+	/* -------------------------------------------- */
+	void test_JMP() {
+		// Test setting the program counter to 3(data) << 8 | 2(data)
+		TS_ASSERT(false);
+	}
+	void test_JC() {
+		// Test JMP called if carry bit one
+	    TS_ASSERT(false);
+	}
+	void test_JNC() {
+		// Test JMP called if carry bit 0
 	    TS_ASSERT(false);
 	}
 	void test_JZ() {
+		// Test JMP called if zero bit one
 	    TS_ASSERT(false);
 	}
-	void test_JC() {
+	void test_JNZ() {
+		// Test JMP called if zero bit 0
 	    TS_ASSERT(false);
 	}
-	void test_JPE() {
+	void test_JP() {
+		// Test JMP called if sign bit 0
 	    TS_ASSERT(false);
 	}
 	void test_JM() {
+		// Test JMP called if sign bit 1
 	    TS_ASSERT(false);
 	}
-	void test_IN() {
+	void test_JPE() {
+		// Test JMP called if parity 1
 	    TS_ASSERT(false);
 	}
-	void test_EI() {
+	void test_JPO() {
+		// Test JMP called if parity 0
 	    TS_ASSERT(false);
 	}
-	void test_CZ() {
+	void test_PCHL() {
+		// Test loading H << 8 | L into program counter
+	    TS_ASSERT(false);
+	}
+	/* -------------------------------------------- */
+	/* /JUMP Instructions
+	/* -------------------------------------------- */
+
+
+	/* -------------------------------------------- */
+	/* CALL Instructions
+	/* -------------------------------------------- */
+
+	void test_CALL() {
 	    TS_ASSERT(false);
 	}
 	void test_CC() {
 	    TS_ASSERT(false);
 	}
-	void test_CPE() {
+	void test_CNC() {
+	    TS_ASSERT(false);
+	}
+	void test_CZ() {
+	    TS_ASSERT(false);
+	}
+	void test_CNZ() {
+	    TS_ASSERT(false);
+	}
+	void test_CP() {
 	    TS_ASSERT(false);
 	}
 	void test_CM() {
 	    TS_ASSERT(false);
 	}
-	void test_CALL() {
+	void test_CPE() {
 	    TS_ASSERT(false);
 	}
-	void test_ACI() {
+	void test_CPO() {
 	    TS_ASSERT(false);
 	}
-	void test_SBI() {
+	/* -------------------------------------------- */
+	/* /CALL Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* RETURN Instructions
+	/* -------------------------------------------- */
+
+	void test_RET() {
 	    TS_ASSERT(false);
 	}
-	void test_INX_B() {
+	void test_RC() {
 	    TS_ASSERT(false);
 	}
-	void test_INX_D() {
+	void test_RNC() {
 	    TS_ASSERT(false);
 	}
-	void test_INX_H() {
+	void test_RZ() {
 	    TS_ASSERT(false);
 	}
-	void test_INX_SP() {
+	void test_RNZ() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_B() {
+	void test_RP() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_D() {
+	void test_RM() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_H() {
+	void test_RPE() {
 	    TS_ASSERT(false);
+	}
+	void test_RPO() {
+	    TS_ASSERT(false);
+	}
+	/* -------------------------------------------- */
+	/* /RETURN Instructions
+	/* -------------------------------------------- */
+
+
+	/* -------------------------------------------- */
+	/* INCREMENT DECREMENT Instructions
+	/* -------------------------------------------- */
+	void test_INR_R() {
+		TS_ASSERT(false);
 	}
 	void test_INR_M() {
 	    TS_ASSERT(false);
 	}
-	void test_DCR_B() {
-	    TS_ASSERT(false);
-	}
-	void test_DCR_D() {
-	    TS_ASSERT(false);
-	}
-	void test_DCR_H() {
+	void test_DCR_R() {
 	    TS_ASSERT(false);
 	}
 	void test_DCR_M() {
+	    TS_ASSERT(false);
+	}
+	void test_INX_r() {
+	    TS_ASSERT(false);
+	}
+	void test_DCX_r() {
+		TS_ASSERT(false);
+	}
+	/* -------------------------------------------- */
+	/* /INCREMENT DECREMENT Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* /INCREMENT DECREMENT Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* /ADD Instructions
+	/* -------------------------------------------- */
+	void test_ADD_R() {
+	    TS_ASSERT(false);
+	}
+	void test_ADD_M() {
+	    TS_ASSERT(false);
+	}
+	void test_ADC_R() {
+	    TS_ASSERT(false);
+	}
+	void test_ADC_M() {
+	    TS_ASSERT(false);
+	}
+	void test_ADI() {
+	    TS_ASSERT(false);
+	}
+	void test_ACI() {
 	    TS_ASSERT(false);
 	}
 	void test_DAD_B() {
@@ -353,113 +358,166 @@ public:
 	void test_DAD_SP() {
 	    TS_ASSERT(false);
 	}
-	void test_DCX_B() {
+	/* -------------------------------------------- */
+	/* /ADD Instructions
+	/* -------------------------------------------- */
+
+
+	/* -------------------------------------------- */
+	/* SUBTRACT Instructions
+	/* -------------------------------------------- */
+	void test_SUB_R() {
 	    TS_ASSERT(false);
 	}
-	void test_DCX_D() {
+	void test_SUB_M() {
 	    TS_ASSERT(false);
 	}
-	void test_DCX_H() {
+	void test_SBB_R() {
 	    TS_ASSERT(false);
 	}
-	void test_DCX_SP() {
+	void test_SBB_M() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_C() {
+	void test_SUI() {
+		TS_ASSERT(false);
+	}
+	void test_SBI() {
+		TS_ASSERT(false);
+	}
+	/* -------------------------------------------- */
+	/* /SUBTRACT Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* LOGICAL Instructions
+	/* -------------------------------------------- */
+	void test_ANA_R() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_E() {
+	void test_ANA_M() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_L() {
+	void test_XRA_R() {
 	    TS_ASSERT(false);
 	}
-	void test_INR_A() {
+	void test_XRA_M() {
 	    TS_ASSERT(false);
 	}
-	void test_DCR_C() {
+	void test_ORA_R() {
 	    TS_ASSERT(false);
 	}
-	void test_DCR_E() {
+	void test_ORA_M() {
 	    TS_ASSERT(false);
 	}
-	void test_DCR_L() {
+	void test_CMP_R() {
 	    TS_ASSERT(false);
 	}
-	void test_DCR_A() {
+	void test_CMP_M() {
 	    TS_ASSERT(false);
 	}
-	void test_POP_B() {
+	void test_ANI() {
 	    TS_ASSERT(false);
 	}
-	void test_POP_D() {
+	void test_XRI() {
+		TS_ASSERT(false);
+	}
+	void test_ORI() {
 	    TS_ASSERT(false);
 	}
-	void test_POP_H() {
+	void test_CPI() {
+		TS_ASSERT(false);
+	}
+	/* -------------------------------------------- */
+	/* /LOGICAL Instructions
+	/* -------------------------------------------- */
+
+
+	/* -------------------------------------------- */
+	/* ROTATE Instructions
+	/* -------------------------------------------- */
+	void test_RLC() {
 	    TS_ASSERT(false);
 	}
-	void test_POP_PSW() {
+	void test_RRC() {
 	    TS_ASSERT(false);
 	}
-	void test_PUSH_B() {
+	void test_RAL() {
 	    TS_ASSERT(false);
 	}
-	void test_PUSH_D() {
+	void test_RAR() {
 	    TS_ASSERT(false);
 	}
-	void test_PUSH_H() {
+	/* -------------------------------------------- */
+	/* /ROTATE Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* SPECIALS Instructions
+	/* -------------------------------------------- */
+	void test_CMA() {
+		TS_ASSERT(false);
+	}
+	void test_STC() {
+		TS_ASSERT(false);
+	}
+	void test_CMC() {
+		TS_ASSERT(false);
+	}
+	void test_DAA() {
 	    TS_ASSERT(false);
 	}
-	void test_PUSH_PSW() {
+	/* -------------------------------------------- */
+	/* /SPECIALS Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* INPUT/OUTPUT Instructions
+	/* -------------------------------------------- */
+	void test_IN() {
 	    TS_ASSERT(false);
 	}
-	void test_RST0() {
+	void test_OUT() {
 	    TS_ASSERT(false);
 	}
-	void test_RST2() {
+	/* -------------------------------------------- */
+	/* /INPUT/OUTPUT Instructions
+	/* -------------------------------------------- */
+
+	/* -------------------------------------------- */
+	/* CONTROL Instructions
+	/* -------------------------------------------- */
+
+	void test_EI() {
+		TS_ASSERT(false);
+	}
+	void test_DI() {
+		TS_ASSERT(false);
+	}
+	void test_NOP() {
+		TS_ASSERT_EQUALS(cpu.sp, 0);
+		TS_ASSERT_EQUALS(cpu.pc, 0);
+		TS_ASSERT_EQUALS(cpu.inte, false);
+		TS_ASSERT_EQUALS(cpu.status, 0);
+		for (int i = 0; i < 8; i++) {
+			TS_ASSERT_EQUALS(cpu.reg[i], 0);
+		}
+
+		cpu.NOP();
+
+		// NOP should have done nothing
+		TS_ASSERT_EQUALS(cpu.sp, 0);
+		TS_ASSERT_EQUALS(cpu.pc, 0);
+		TS_ASSERT_EQUALS(cpu.inte, false);
+		TS_ASSERT_EQUALS(cpu.status, 0);
+		for (int i = 0; i < 8; i++) {
+			TS_ASSERT_EQUALS(cpu.reg[i], 0);
+		}
+	}
+	void test_HLT() {
 	    TS_ASSERT(false);
 	}
-	void test_RST4() {
-	    TS_ASSERT(false);
-	}
-	void test_RST6() {
-	    TS_ASSERT(false);
-	}
-	void test_RST1() {
-	    TS_ASSERT(false);
-	}
-	void test_RST3() {
-	    TS_ASSERT(false);
-	}
-	void test_RST5() {
-	    TS_ASSERT(false);
-	}
-	void test_RST7() {
-	    TS_ASSERT(false);
-	}
-	void test_ADD() {
-	    TS_ASSERT(false);
-	}
-	void test_ADC() {
-	    TS_ASSERT(false);
-	}
-	void test_SUB() {
-	    TS_ASSERT(false);
-	}
-	void test_SBB() {
-	    TS_ASSERT(false);
-	}
-	void test_ANA() {
-	    TS_ASSERT(false);
-	}
-	void test_XRA() {
-	    TS_ASSERT(false);
-	}
-	void test_ORA() {
-	    TS_ASSERT(false);
-	}
-	void test_CMP() {
-	    TS_ASSERT(false);
-	}
+	/* -------------------------------------------- */
+	/* /CONTROL Instructions
+	/* -------------------------------------------- */
 
 };
