@@ -13,6 +13,11 @@ all: testbuild testrunner
 clean:
 	-rm testrunner.cpp testrunner.o testrunner;
 
+main:
+	cd ..
+	make
+	cd tests
+
 testbuild:
 	$(TESTS_DIR)/bin/cxxtestgen -f --error-printer -o testrunner.cpp tests_intel8080.h
 	$(CC) $(CFLAGS) -I$(TESTS_DIR) -I../include -DTESTING -c -o $(TARGET).o $(TARGET).cpp

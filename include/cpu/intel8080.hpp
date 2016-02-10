@@ -33,8 +33,6 @@ private:
 	uint16 getPc() { return pc; }
 
 	void NOP();
-	void SHLD_A16();
-	void STA_A16();
 	void RLC();
 	void RAL();
 	void DAA();
@@ -76,7 +74,6 @@ private:
 	void JPE();
 	void JM();
 	void IN();
-	void XCHG();
 	void EI();
 	void CZ();
 	void CC();
@@ -87,11 +84,6 @@ private:
 	void SBI();
 
 	// 4 types for B, D, H, SP
-	void LXI_B();
-	void LXI_D();
-	void STAX_B();
-	void STAX_D();
-	void LXI_H();
 	void LXI_SP();
 	void INX_B();
 	void INX_D();
@@ -113,10 +105,6 @@ private:
 	void DAD_D();
 	void DAD_H();
 	void DAD_SP();
-	void LDAX_B();
-	void LDAX_D();
-	void LHLD();
-	void LDA();
 	void DCX_B();
 	void DCX_D();
 	void DCX_H();
@@ -129,10 +117,6 @@ private:
 	void DCR_E();
 	void DCR_L();
 	void DCR_A();
-	void MVI_C();
-	void MVI_E();
-	void MVI_L();
-	void MVI_A();
 	void POP_B();
 	void POP_D();
 	void POP_H();
@@ -141,16 +125,22 @@ private:
 	void PUSH_D();
 	void PUSH_H();
 	void PUSH_PSW();
-	void RST0();
-	void RST2();
-	void RST4();
-	void RST6();
-	void RST1();
-	void RST3();
-	void RST5();
-	void RST7();
+	void RST(int val);
 
-	void MOV(uint8 from, uint8 to); // Not allowed for M -> M
+	void MOV_r(uint8 from, uint8 to);
+	void MOV_r_m(uint8 from);
+	void MOV_m_r(uint8 to);
+	void MVI_m(uint8 data);
+	void MVI_r(uint8 from, uint16 data);
+	void LXI_r(uint8 pair, uint16 data);
+	void STAX(uint8 pair);
+	void LDAX(uint8 pair);
+	void STA(uint16 data);
+	void LDA(uint16 data);
+	void SHLD(uint16 data);
+	void LHLD(uint16 data);
+	void XCHG();
+
 	void ADD(uint8 reg);
 	void ADC(uint8 reg);
 	void SUB(uint8 reg);

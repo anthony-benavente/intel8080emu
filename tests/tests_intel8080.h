@@ -3,9 +3,32 @@
 #include "program/program.hpp"
 #include "cpu/intel8080.hpp"
 
+#define B 0
+#define C 1
+#define D 2
+#define E 3
+#define H 4
+#define L 5
+#define M 6
+#define A 7
+
 class Intel8080TestSuite : public CxxTest::TestSuite {
-	Intel8080 cpu;
 public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 
 	void test_getNextOp(void) {
 		cpu.loadProgram(getProgram("../res/invaders.rom"));
@@ -33,9 +56,16 @@ public:
 	void test_decode() {
 	    TS_ASSERT(false);
 	}
-	
+
 	void test_RST() {
-	    TS_ASSERT(false);
+		cpu.pc = 0;
+		cpu.sp = 0;
+		for (int i = 1; i < 8; i++) {
+			cpu.RST(i);
+			TS_ASSERT_EQUALS(cpu.pc, i)
+			TS_ASSERT_EQUALS(cpu.stack.top(), i - 1);
+			cpu.stack.pop();
+		}
 	}
 
 	/* -------------------------------------------- */
@@ -43,95 +73,160 @@ public:
 	/* -------------------------------------------- */
 	void test_MOV() {
 		// Test moving register to register
+		TS_ASSERT_EQUALS(cpu.reg[B], 0xb);
+		cpu.MOV_r(B, H);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0xb);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xb);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+		cpu.MOV_r(C, B);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0xc);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0xc);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.MOV_r(L, B);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x17);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x17);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 15);
+		cpu.MOV_r(B, C);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x17);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0x17);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.MOV_r(C, H);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0x17);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x17);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 25);
+
 		// Test moving register to memory
-		// Test moving register to memory
-		TS_ASSERT(false);
+		cpu.MOV_r_m(H);
+		TS_ASSERT_EQUALS(cpu.memory[0x1717], 0x17);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 32);
+		cpu.MOV_r_m(A);
+		TS_ASSERT_EQUALS(cpu.memory[0x1717], 0xa);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 39);
+
+		// Test moving memory to register
+		cpu.MOV_m_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0xa)
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 46);
 	}
 
 	void test_MVI() {
 		// Test moving immediate to memory at H,L pair
+		cpu.MVI_m(0xf3);
+		TS_ASSERT_EQUALS(cpu.memory[0x1217], 0xf3);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 7);
+		cpu.MVI_m(0xdd);
+		TS_ASSERT_EQUALS(cpu.memory[0x1217], 0xdd);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 14);
+
 		// Test moving immediate to register
-		TS_ASSERT(false);
+		cpu.MVI_r(B, 0x33);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 21);
+		cpu.MVI_r(H, 0x13);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		cpu.MVI_r(L, 0xd3);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 35);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x33);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x13);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xd3);
 	}
 
 	void test_LXI() {
 		// Test load immediate to pair B,C
+		cpu.LXI_r(B, 0x3219);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x19);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0x32);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
 		// Test load immediate to pair D,E
+		cpu.LXI_r(D, 0xdead);
+		TS_ASSERT_EQUALS(cpu.reg[D], 0xad);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0xde);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
 		// Test load immediate to pair H,L
-	    TS_ASSERT(false);
+		cpu.LXI_r(H, 0xdad0);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xd0);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xda);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
 	}
 
 	void test_STAX() {
 		// Test store accumulator into memory @ B,C
+		cpu.STAX(B);
+		TS_ASSERT_EQUALS(cpu.memory[0xb0c], 0xa);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 7);
+
 		// Test store accumulator into memory @ D,E
-	    TS_ASSERT(false);
+		cpu.STAX(D);
+		TS_ASSERT_EQUALS(cpu.memory[0xd0e], 0xa);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 14);
 	}
 
 	void test_LDAX() {
+		cpu.memory[0xb0c] = 0xba;
+		cpu.memory[0xd0e] = 0xbe;
+
 		// Test load accumulator from memory @ B,C
+		cpu.LDAX(B);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xba);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 7);
+
 		// Test load accumulator from memory @ D,E
-		TS_ASSERT(false);
+		cpu.LDAX(D);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xbe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 14);
 	}
 
 	void test_STA() {
-		cpu.reg[7] = 0xae;
-		cpu.pc = 0x9990;
-		cpu.memory[0x9990] = 0xa0;
-		cpu.memory[0x9991] = 0xaa;
-		cpu.cycles = 0;
-
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa0], 0);
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa1], 0);
-		cpu.STA_A16();
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa0], 0x00);
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa1], 0xae);
+		cpu.STA(0xaaa0);
+		TS_ASSERT_EQUALS(cpu.memory[0xaaa0], 0xa);
 		TS_ASSERT_EQUALS(cpu.cycles, 13);
-
-		cpu.pc = 0;
-		cpu.reg[7] = 0;
-		cpu.memory[0x9990] = 0;
-		cpu.memory[0x9991] = 0;
-		cpu.memory[0xaaa0] = 0;
-		cpu.memory[0xaaa1] = 0;
-		cpu.cycles = 0;
 	}
 
 	void test_LDA() {
+		cpu.memory[0xdead] = 0xba;
+		cpu.memory[0xbabe] = 0xbe;
+
 		// Test loading memory @ [pc + 1:pc + 2] into acculumator
-	    TS_ASSERT(false);
+		cpu.LDA(0xdead);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xba);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 13);
+
+		cpu.LDA(0xbabe);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xbe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 26);
 	}
 
 	void test_SHLD() {
-		cpu.reg[4] = 0xae;
-		cpu.reg[5] = 0x29;
-		cpu.pc = 0x9990;
-		cpu.memory[0x9990] = 0xa0;
-		cpu.memory[0x9991] = 0xaa;
-		cpu.cycles = 0;
-
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa0], 0);
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa1], 0);
-		cpu.SHLD_A16();
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa0], 0x29);
-		TS_ASSERT_EQUALS(cpu.memory[0xaaa1], 0xae);
+		cpu.SHLD(0xaaaa);
+		TS_ASSERT_EQUALS(cpu.memory[0xaaaa], 0x17);
+		TS_ASSERT_EQUALS(cpu.memory[0xaaaa + 1], 0x12);
 		TS_ASSERT_EQUALS(cpu.cycles, 16);
-
-		cpu.pc = 0;
-		cpu.reg[4] = 0;
-		cpu.reg[5] = 0;
-		cpu.memory[0x9990] = 0;
-		cpu.memory[0x9991] = 0;
-		cpu.cycles = 0;
 	}
 
 	void test_LHLD() {
+		cpu.memory[0xdead] = 0xde;
+		cpu.memory[0xdead + 1] = 0xad;
+
 		// Load memory @ [pc + 1:pc + 2] -> L, H respectively
-	    TS_ASSERT(false);
+		cpu.LHLD(0xdead);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xde);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xad);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 16);
 	}
 
 	void test_XCHG() {
+		TS_ASSERT_EQUALS(cpu.reg[D], 0xd);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0xe);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x12);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x17);
 		// Swap pair D,E with H,L respectively
-	    TS_ASSERT(false);
+		cpu.XCHG();
+		TS_ASSERT_EQUALS(cpu.reg[D], 0x12);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0x17);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xd);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
 	}
 
 	/* -------------------------------------------- */

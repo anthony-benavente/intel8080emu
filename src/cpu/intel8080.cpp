@@ -19,6 +19,14 @@ using std::endl;
 #define STATUS_SIGN 		0x80
 #define STATUS_ZERO 		0x40
 
+void swap(uint8 *, int, int);
+
+void swap(uint8 *arr, int a, int b) {
+	uint8 tmp = *(arr + a);
+	*(arr + a) = *(arr + b);
+	*(arr + b) = tmp;
+}
+
 void Intel8080::loadProgram(program_t *program) {
 	for (int i = 0; i < program->size; i++) {
 		memory[i] = program->data[i];
@@ -42,10 +50,84 @@ void Intel8080::decode(uint8 op) {
 }
 void Intel8080::NOP() {
 }
-void Intel8080::SHLD_A16() {
+
+void Intel8080::RST(int val) {
+	stack.push(pc);
+	pc = val;
 }
-void Intel8080::STA_A16() {
+
+void Intel8080::MOV_r(uint8 from, uint8 to) {
+	uint8 tmp = reg[to];
+	reg[to] = reg[from];
+	cycles += 5;
 }
+void Intel8080::MOV_r_m(uint8 from) {
+	uint16 memIndex = (reg[H] << 8) | reg[L];
+	memory[memIndex] = reg[from];
+	cycles += 7;
+}
+void Intel8080::MOV_m_r(uint8 to) {
+	uint16 memIndex = (reg[H] << 8) | reg[L];
+	reg[to] = memory[memIndex];
+	cycles += 7;
+}
+void Intel8080::MVI_m(uint8 data) {
+	uint16 memIndex = (reg[H] << 8) | reg[L];
+	memory[memIndex] = data;
+	cycles += 7;
+}
+void Intel8080::MVI_r(uint8 from, uint16 data) {
+	reg[from] = data;
+	cycles += 7;
+}
+void Intel8080::LXI_r(uint8 pair, uint16 data) {
+	if (pair == B || pair == D || pair == H) {
+		reg[pair] = data & 0xff;
+		reg[pair + 1] = (data >> 8) & 0xff;
+	}
+	cycles += 10;
+}
+void Intel8080::STAX(uint8 pair) {
+	if (pair == B || pair == D) {
+		uint16 memIndex = (reg[pair] << 8) | reg[pair + 1];
+		memory[memIndex] = reg[A];
+	}
+	cycles += 7;
+}
+void Intel8080::LDAX(uint8 pair) {
+	if (pair == B || pair == D) {
+		uint16 memIndex = (reg[pair] << 8) | reg[pair + 1];
+		reg[A] = memory[memIndex];
+	}
+	cycles += 7;
+}
+void Intel8080::STA(uint16 data) {
+	uint8 low = (data >> 8) & 0xff;
+	uint8 high = data & 0xff;
+	uint16 memIndex = (low << 8) | high;
+	memory[memIndex] = reg[A];
+	cycles += 13;
+}
+void Intel8080::LDA(uint16 data) {
+	reg[A] = memory[data];
+	cycles += 13;
+}
+void Intel8080::SHLD(uint16 data) {
+	memory[data] = reg[L];
+	memory[data + 1] = reg[H];
+	cycles += 16;
+}
+void Intel8080::LHLD(uint16 data) {
+	reg[L] = memory[data];
+	reg[H] = memory[data + 1];
+	cycles += 16;
+}
+void Intel8080::XCHG() {
+	swap(reg, D, H);
+	swap(reg, E, L);
+	cycles += 4;
+}
+
 void Intel8080::RLC() {
 }
 void Intel8080::RAL() {
@@ -128,8 +210,6 @@ void Intel8080::JM() {
 }
 void Intel8080::IN() {
 }
-void Intel8080::XCHG() {
-}
 void Intel8080::EI() {
 }
 void Intel8080::CZ() {
@@ -145,18 +225,6 @@ void Intel8080::CALL() {
 void Intel8080::ACI() {
 }
 void Intel8080::SBI() {
-}
-void Intel8080::LXI_B() {
-}
-void Intel8080::LXI_D() {
-}
-void Intel8080::STAX_B() {
-}
-void Intel8080::STAX_D() {
-}
-void Intel8080::LXI_H() {
-}
-void Intel8080::LXI_SP() {
 }
 void Intel8080::INX_B() {
 }
@@ -182,14 +250,6 @@ void Intel8080::DCR_H() {
 }
 void Intel8080::DCR_M() {
 }
-void Intel8080::MVI_B() {
-}
-void Intel8080::MVI_D() {
-}
-void Intel8080::MVI_H() {
-}
-void Intel8080::MVI_M() {
-}
 void Intel8080::DAD_B() {
 }
 void Intel8080::DAD_D() {
@@ -197,14 +257,6 @@ void Intel8080::DAD_D() {
 void Intel8080::DAD_H() {
 }
 void Intel8080::DAD_SP() {
-}
-void Intel8080::LDAX_B() {
-}
-void Intel8080::LDAX_D() {
-}
-void Intel8080::LHLD() {
-}
-void Intel8080::LDA() {
 }
 void Intel8080::DCX_B() {
 }
@@ -230,14 +282,6 @@ void Intel8080::DCR_L() {
 }
 void Intel8080::DCR_A() {
 }
-void Intel8080::MVI_C() {
-}
-void Intel8080::MVI_E() {
-}
-void Intel8080::MVI_L() {
-}
-void Intel8080::MVI_A() {
-}
 void Intel8080::POP_B() {
 }
 void Intel8080::POP_D() {
@@ -253,24 +297,6 @@ void Intel8080::PUSH_D() {
 void Intel8080::PUSH_H() {
 }
 void Intel8080::PUSH_PSW() {
-}
-void Intel8080::RST0() {
-}
-void Intel8080::RST2() {
-}
-void Intel8080::RST4() {
-}
-void Intel8080::RST6() {
-}
-void Intel8080::RST1() {
-}
-void Intel8080::RST3() {
-}
-void Intel8080::RST5() {
-}
-void Intel8080::RST7() {
-}
-void Intel8080::MOV(uint8 from, uint8 to) {
 }
 void Intel8080::ADD(uint8 reg) {
 }
