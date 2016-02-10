@@ -12,7 +12,7 @@
 #define M 6
 #define A 7
 
-class Intel8080TestSuite : public CxxTest::TestSuite {
+class MemoryTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
 	uint32 cyclesTmp;
@@ -30,47 +30,6 @@ public:
 		cyclesTmp = cpu.cycles;
 	}
 
-	void test_getNextOp(void) {
-		cpu.loadProgram(getProgram("../res/invaders.rom"));
-		cpu.getNextOp();
-		cpu.getNextOp();
-		cpu.getNextOp();
-		TS_ASSERT_EQUALS(cpu.getPc(), 0x03);
-		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xc3);
-		TS_ASSERT_EQUALS(cpu.getPc(), 0x4);
-		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xd4);
-		TS_ASSERT_EQUALS(cpu.getPc(), 0x5);
-		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x18);
-		TS_ASSERT_EQUALS(cpu.getPc(), 0x6);
-		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x00);
-		TS_ASSERT_EQUALS(cpu.getPc(), 0x7);
-		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x00);
-		TS_ASSERT_EQUALS(cpu.getPc(), 0x8);
-		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xf5);
-		for (int i = 0; i <= 0xffff; i++) {
-			cpu.memory[i] = 0;
-		}
-		cpu.pc = 0;
-	}
-
-	void test_decode() {
-	    TS_ASSERT(false);
-	}
-
-	void test_RST() {
-		cpu.pc = 0;
-		cpu.sp = 0;
-		for (int i = 1; i < 8; i++) {
-			cpu.RST(i);
-			TS_ASSERT_EQUALS(cpu.pc, i)
-			TS_ASSERT_EQUALS(cpu.stack.top(), i - 1);
-			cpu.stack.pop();
-		}
-	}
-
-	/* -------------------------------------------- */
-	/*   MOVE LOAD STORE Instructions				*/
-	/* -------------------------------------------- */
 	void test_MOV() {
 		// Test moving register to register
 		TS_ASSERT_EQUALS(cpu.reg[B], 0xb);
@@ -180,7 +139,7 @@ public:
 	void test_STA() {
 		cpu.STA(0xaaa0);
 		TS_ASSERT_EQUALS(cpu.memory[0xaaa0], 0xa);
-		TS_ASSERT_EQUALS(cpu.cycles, 13);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 13);
 	}
 
 	void test_LDA() {
@@ -201,7 +160,7 @@ public:
 		cpu.SHLD(0xaaaa);
 		TS_ASSERT_EQUALS(cpu.memory[0xaaaa], 0x17);
 		TS_ASSERT_EQUALS(cpu.memory[0xaaaa + 1], 0x12);
-		TS_ASSERT_EQUALS(cpu.cycles, 16);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 16);
 	}
 
 	void test_LHLD() {
@@ -228,14 +187,25 @@ public:
 		TS_ASSERT_EQUALS(cpu.reg[L], 0xe);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
 	}
+};
 
-	/* -------------------------------------------- */
-	/* /MOVE LOAD STORE Instructions
-	/* -------------------------------------------- */
+class StackTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* STACK Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_PUSH() {
 		// Test pushing B,C to stack
 		// Test pushing H,L to stack
@@ -246,6 +216,7 @@ public:
 		// Test popping from stack into B pair
 		// Test popping from stack into H pair
 		// Test popping from stack into PSW pair
+		TS_ASSERT(false);
 	}
 	void test_XTHL() {
 		// Test exchanging stack[sp, sp+1] with L,H respectively
@@ -267,14 +238,25 @@ public:
 		// Test decrease value of SP by 1
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /STACK Instructions
-	/* -------------------------------------------- */
+};
 
+class JumpTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* JUMP Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_JMP() {
 		// Test setting the program counter to 3(data) << 8 | 2(data)
 		TS_ASSERT(false);
@@ -315,14 +297,25 @@ public:
 		// Test loading H << 8 | L into program counter
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /JUMP Instructions
-	/* -------------------------------------------- */
+};
 
+class CallTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* CALL Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 
 	void test_CALL() {
 	    TS_ASSERT(false);
@@ -351,13 +344,25 @@ public:
 	void test_CPO() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /CALL Instructions
-	/* -------------------------------------------- */
+};
 
-	/* -------------------------------------------- */
-	/* RETURN Instructions
-	/* -------------------------------------------- */
+class ReturnTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 
 	void test_RET() {
 	    TS_ASSERT(false);
@@ -386,14 +391,25 @@ public:
 	void test_RPO() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /RETURN Instructions
-	/* -------------------------------------------- */
+};
 
+class IncrementDecrementTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* INCREMENT DECREMENT Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_INR_R() {
 		TS_ASSERT(false);
 	}
@@ -412,17 +428,25 @@ public:
 	void test_DCX_r() {
 		TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /INCREMENT DECREMENT Instructions
-	/* -------------------------------------------- */
+};
 
-	/* -------------------------------------------- */
-	/* /INCREMENT DECREMENT Instructions
-	/* -------------------------------------------- */
+class AddTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* /ADD Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_ADD_R() {
 	    TS_ASSERT(false);
 	}
@@ -453,14 +477,25 @@ public:
 	void test_DAD_SP() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /ADD Instructions
-	/* -------------------------------------------- */
+};
 
+class SubtractTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* SUBTRACT Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_SUB_R() {
 	    TS_ASSERT(false);
 	}
@@ -479,13 +514,25 @@ public:
 	void test_SBI() {
 		TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /SUBTRACT Instructions
-	/* -------------------------------------------- */
+};
 
-	/* -------------------------------------------- */
-	/* LOGICAL Instructions
-	/* -------------------------------------------- */
+class LogicalTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_ANA_R() {
 	    TS_ASSERT(false);
 	}
@@ -522,14 +569,25 @@ public:
 	void test_CPI() {
 		TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /LOGICAL Instructions
-	/* -------------------------------------------- */
+};
 
+class RotateTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
 
-	/* -------------------------------------------- */
-	/* ROTATE Instructions
-	/* -------------------------------------------- */
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_RLC() {
 	    TS_ASSERT(false);
 	}
@@ -542,13 +600,25 @@ public:
 	void test_RAR() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /ROTATE Instructions
-	/* -------------------------------------------- */
+};
 
-	/* -------------------------------------------- */
-	/* SPECIALS Instructions
-	/* -------------------------------------------- */
+class SpecialsTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_CMA() {
 		TS_ASSERT(false);
 	}
@@ -561,26 +631,50 @@ public:
 	void test_DAA() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /SPECIALS Instructions
-	/* -------------------------------------------- */
+};
 
-	/* -------------------------------------------- */
-	/* INPUT/OUTPUT Instructions
-	/* -------------------------------------------- */
+class InputOuputTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 	void test_IN() {
 	    TS_ASSERT(false);
 	}
 	void test_OUT() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /INPUT/OUTPUT Instructions
-	/* -------------------------------------------- */
+};
 
-	/* -------------------------------------------- */
-	/* CONTROL Instructions
-	/* -------------------------------------------- */
+class ControlTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
 
 	void test_EI() {
 		TS_ASSERT(false);
@@ -611,8 +705,80 @@ public:
 	void test_HLT() {
 	    TS_ASSERT(false);
 	}
-	/* -------------------------------------------- */
-	/* /CONTROL Instructions
-	/* -------------------------------------------- */
+};
 
+class ResetTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
+
+	void test_RST() {
+		cpu.pc = 0;
+		cpu.sp = 0;
+		for (int i = 1; i < 8; i++) {
+			cpu.RST(i);
+			TS_ASSERT_EQUALS(cpu.pc, i)
+			TS_ASSERT_EQUALS(cpu.stack.top(), i - 1);
+			cpu.stack.pop();
+		}
+	}
+};
+
+class GeneralTests : public CxxTest::TestSuite {
+public:
+	Intel8080 cpu;
+	uint32 cyclesTmp;
+
+	void setUp(void) {
+		// cpu = Intel8080();
+		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
+		cpu.reg[B] = 0xb;
+		cpu.reg[C] = 0xc;
+		cpu.reg[D] = 0xd;
+		cpu.reg[E] = 0xe;
+		cpu.reg[H] = 0x12;
+		cpu.reg[L] = 0x17;
+		cpu.reg[A] = 0xa;
+		cyclesTmp = cpu.cycles;
+	}
+
+	void test_getNextOp(void) {
+		cpu.loadProgram(getProgram("../res/invaders.rom"));
+		cpu.getNextOp();
+		cpu.getNextOp();
+		cpu.getNextOp();
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x03);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xc3);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x4);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xd4);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x5);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x18);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x6);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x00);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x7);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0x00);
+		TS_ASSERT_EQUALS(cpu.getPc(), 0x8);
+		TS_ASSERT_EQUALS(cpu.getNextOp(), 0xf5);
+		for (int i = 0; i <= 0xffff; i++) {
+			cpu.memory[i] = 0;
+		}
+		cpu.pc = 0;
+	}
+
+	void test_decode() {
+	    TS_ASSERT(false);
+	}
 };
