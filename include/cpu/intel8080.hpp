@@ -187,7 +187,9 @@ private:
 public:
 #endif
 
-	Intel8080() : inte(false), pc(0), sp(0xffff) {
+	// NOTE: sp starts 1 higher than memory bc nothing is in the stack
+
+	Intel8080() : inte(false), pc(0), sp(0xffff + 1) {
 		for (int i = 0; i <= 0xffff; i++) {
 			if (i < 8) {
 				reg[i] = 0;
