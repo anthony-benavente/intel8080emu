@@ -349,3 +349,6 @@ int Intel8080::getFlag(int mask) {
 	// !! to turn into a 1 or 0 (hackish I know)
 	return !!(status & mask);
 }
+uint16 Intel8080::getHL() {
+	return (reg[H] << 8) | reg[L];
+}

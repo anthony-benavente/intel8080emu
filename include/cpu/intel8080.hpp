@@ -182,6 +182,7 @@ private:
 
 	void setFlag(int, int);
 	int getFlag(int);
+	uint16 getHL();
 
 #ifndef TESTING
 public:
