@@ -28,6 +28,7 @@ public:
 		cpu.reg[L] = 0x17;
 		cpu.reg[A] = 0xa;
 		cyclesTmp = cpu.cycles;
+		cpu.sp = 0xffff;
 	}
 
 	void test_MOV() {
@@ -206,37 +207,110 @@ public:
 		cpu.reg[A] = 0xa;
 		cyclesTmp = cpu.cycles;
 	}
+
 	void test_PUSH() {
+		uint16 tmpSP = cpu.sp;
+
 		// Test pushing B,C to stack
+		cpu.PUSH(B);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0xc);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xb);
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+
 		// Test pushing H,L to stack
+		cpu.PUSH(H);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x17);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x12);
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 4);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 22);
+
 		// Test pushing PSW to stack (A, status)
-	    TS_ASSERT(false);
+		cpu.PUSH(A);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x0);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xa);
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 6);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 33);
 	}
+
 	void test_POP() {
+		uint16 tmpSP = cpu.sp;
+		cpu.memory[--cpu.sp] = 0xde;
+		cpu.memory[--cpu.sp] = 0xad;
+		cpu.memory[--cpu.sp] = 0xba;
+		cpu.memory[--cpu.sp] = 0xbe;
+		cpu.memory[--cpu.sp] = 0xda;
+		cpu.memory[--cpu.sp] = 0xd0;
+
 		// Test popping from stack into B pair
+		cpu.POP(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0xda);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0xd0);
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 4);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
 		// Test popping from stack into H pair
+		cpu.POP(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xba);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xbe);
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
 		// Test popping from stack into PSW pair
-		TS_ASSERT(false);
+		cpu.POP(A);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xde);
+		TS_ASSERT_EQUALS(cpu.status, 0xad);
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
 	}
+
 	void test_XTHL() {
+		cpu.memory[--cpu.sp] = 0xba;
+		cpu.memory[--cpu.sp] = 0xbe;
+
 		// Test exchanging stack[sp, sp+1] with L,H respectively
-	    TS_ASSERT(false);
+		cpu.XTHL();
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xbe);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xba);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x12);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x17);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 18);
 	}
+
 	void test_SPHL() {
 		// Test value H << 8 | L getting loaded into stack pointer
-	    TS_ASSERT(false);
+		cpu.SPHL();
+		TS_ASSERT_EQUALS(cpu.sp, 0x1217);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
 	}
+
 	void test_LXI_SP() {
 		// Test sp becomes 3(data) << 8 | 2(data)
-		TS_ASSERT(false);
+		cpu.LXI_SP(0xbabe);
+		TS_ASSERT_EQUALS(cpu.sp, 0xbeba);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
 	}
+
 	void test_INX_SP() {
+		uint16 tmpSP = cpu.sp;
+
 		// Test increase value of SP by 1
-	    TS_ASSERT(false);
+		cpu.INX_SP();
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+		cpu.INX_SP();
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP + 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
 	}
+
 	void test_DCX_SP() {
-		// Test decrease value of SP by 1
-	    TS_ASSERT(false);
+		uint16 tmpSP = cpu.sp;
+
+		// Test increase value of SP by 1
+		cpu.DCX_SP();
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+		cpu.DCX_SP();
+		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
 	}
 };
 
@@ -731,8 +805,7 @@ public:
 		for (int i = 1; i < 8; i++) {
 			cpu.RST(i);
 			TS_ASSERT_EQUALS(cpu.pc, i)
-			TS_ASSERT_EQUALS(cpu.stack.top(), i - 1);
-			cpu.stack.pop();
+			TS_ASSERT_EQUALS(cpu.memory[cpu.sp++], i - 1);
 		}
 	}
 };

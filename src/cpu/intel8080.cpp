@@ -52,7 +52,7 @@ void Intel8080::NOP() {
 }
 
 void Intel8080::RST(int val) {
-	stack.push(pc);
+	memory[--sp] = pc;
 	pc = val;
 }
 
@@ -128,6 +128,55 @@ void Intel8080::XCHG() {
 	cycles += 4;
 }
 
+
+void Intel8080::PUSH(uint8 pair) {
+	if (pair == B || pair == H || pair == D) {
+		memory[--sp] = reg[pair];
+		memory[--sp] = reg[pair + 1];
+	} else if (pair == A) {
+		memory[--sp] = reg[A];
+		memory[--sp] = status;
+	}
+	cycles += 11;
+}
+void Intel8080::POP(uint8 pair) {
+	if (pair == B || pair == H || pair == D) {
+		reg[pair + 1] = memory[sp++];
+		reg[pair] = memory[sp++];
+	} else if (pair == A) {
+		status = memory[sp++];
+		reg[A] = memory[sp++];
+	}
+	cycles += 10;
+}
+void Intel8080::XTHL() {
+	uint8 tmp = memory[sp];
+	memory[sp] = reg[L];
+	reg[L] = tmp;
+
+	tmp = memory[sp + 1];
+	memory[sp + 1] = reg[H];
+	reg[H] = tmp;
+
+	cycles += 18;
+}
+void Intel8080::SPHL() {
+	sp = (reg[H] << 8) | reg[L];
+	cycles += 5;
+}
+void Intel8080::LXI_SP(uint16 data) {
+	sp = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::INX_SP() {
+	sp++;
+	cycles += 5;
+}
+void Intel8080::DCX_SP() {
+	sp--;
+	cycles += 5;
+}
+
 void Intel8080::RLC() {
 }
 void Intel8080::RAL() {
@@ -166,8 +215,6 @@ void Intel8080::JMP() {
 }
 void Intel8080::OUT() {
 }
-void Intel8080::XTHL() {
-}
 void Intel8080::DI() {
 }
 void Intel8080::CNZ() {
@@ -179,8 +226,6 @@ void Intel8080::CPO() {
 void Intel8080::CP() {
 }
 void Intel8080::ADI() {
-}
-void Intel8080::USI() {
 }
 void Intel8080::ANI() {
 }
@@ -197,8 +242,6 @@ void Intel8080::RM() {
 void Intel8080::RET() {
 }
 void Intel8080::PCHL() {
-}
-void Intel8080::SPHL() {
 }
 void Intel8080::JZ() {
 }
@@ -226,91 +269,43 @@ void Intel8080::ACI() {
 }
 void Intel8080::SBI() {
 }
-void Intel8080::INX_B() {
+void Intel8080::INX_r(uint8 pair) {
 }
-void Intel8080::INX_D() {
+void Intel8080::INR_r(uint8 reg) {
 }
-void Intel8080::INX_H() {
+void Intel8080::INR_m() {
 }
-void Intel8080::INX_SP() {
+void Intel8080::DCR_r(uint8 reg) {
 }
-void Intel8080::INR_B() {
+void Intel8080::DCR_m() {
 }
-void Intel8080::INR_D() {
-}
-void Intel8080::INR_H() {
-}
-void Intel8080::INR_M() {
-}
-void Intel8080::DCR_B() {
-}
-void Intel8080::DCR_D() {
-}
-void Intel8080::DCR_H() {
-}
-void Intel8080::DCR_M() {
-}
-void Intel8080::DAD_B() {
-}
-void Intel8080::DAD_D() {
-}
-void Intel8080::DAD_H() {
-}
-void Intel8080::DAD_SP() {
-}
-void Intel8080::DCX_B() {
-}
-void Intel8080::DCX_D() {
-}
-void Intel8080::DCX_H() {
-}
-void Intel8080::DCX_SP() {
-}
-void Intel8080::INR_C() {
-}
-void Intel8080::INR_E() {
-}
-void Intel8080::INR_L() {
-}
-void Intel8080::INR_A() {
-}
-void Intel8080::DCR_C() {
-}
-void Intel8080::DCR_E() {
-}
-void Intel8080::DCR_L() {
-}
-void Intel8080::DCR_A() {
-}
-void Intel8080::POP_B() {
-}
-void Intel8080::POP_D() {
-}
-void Intel8080::POP_H() {
-}
-void Intel8080::POP_PSW() {
-}
-void Intel8080::PUSH_B() {
-}
-void Intel8080::PUSH_D() {
-}
-void Intel8080::PUSH_H() {
-}
-void Intel8080::PUSH_PSW() {
+void Intel8080::DAD_r(uint8 pair) {
 }
 void Intel8080::ADD(uint8 reg) {
 }
 void Intel8080::ADC(uint8 reg) {
 }
-void Intel8080::SUB(uint8 reg) {
+void Intel8080::SUB_r(uint8 reg) {
 }
-void Intel8080::SBB(uint8 reg) {
+void Intel8080::SUB_m() {
 }
-void Intel8080::ANA(uint8 reg) {
+void Intel8080::SBB_r(uint8 reg) {
 }
-void Intel8080::XRA(uint8 reg) {
+void Intel8080::SBB_m() {
 }
-void Intel8080::ORA(uint8 reg) {
+void Intel8080::ANA_r(uint8 reg) {
 }
-void Intel8080::CMP(uint8 reg) {
+void Intel8080::ANA_m() {
+}
+void Intel8080::XRA_r(uint8 reg) {
+}
+void Intel8080::XRA_m() {
+}
+void Intel8080::ORA_r(uint8 reg) {
+}
+void Intel8080::ORA_m() {
+}
+void Intel8080::CMP_r(uint8 reg) {
+}
+void Intel8080::CMP_m() {
 }
