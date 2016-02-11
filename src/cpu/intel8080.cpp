@@ -56,6 +56,7 @@ void Intel8080::RST(int val) {
 	pc = val;
 }
 
+// MOVE STORE LOAD instructions
 void Intel8080::MOV_r(uint8 from, uint8 to) {
 	uint8 tmp = reg[to];
 	reg[to] = reg[from];
@@ -128,7 +129,7 @@ void Intel8080::XCHG() {
 	cycles += 4;
 }
 
-
+// Stack functions
 void Intel8080::PUSH(uint8 pair) {
 	if (pair == B || pair == H || pair == D) {
 		memory[--sp] = reg[pair];
@@ -177,6 +178,76 @@ void Intel8080::DCX_SP() {
 	cycles += 5;
 }
 
+// JUMP instructions
+void Intel8080::JMP(uint16 data) {
+	pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JC(uint16 data) {
+	if (status & STATUS_CARRY)
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JNC(uint16 data) {
+	if (!(status & STATUS_CARRY))
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JZ(uint16 data) {
+	if (status & STATUS_ZERO)
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JNZ(uint16 data) {
+	if (!(status & STATUS_ZERO))
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JP(uint16 data) {
+	if (!(status & STATUS_SIGN))
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JM(uint16 data) {
+	if (status & STATUS_SIGN)
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JPE(uint16 data) {
+	if (status & STATUS_PARITY)
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::JPO(uint16 data) {
+	if (!(status & STATUS_PARITY))
+		pc = ((data & 0xff) << 8) | ((data >> 8) & 0xff);
+	cycles += 10;
+}
+void Intel8080::PCHL() {
+	pc = (reg[H] << 8) | reg[L];
+	cycles += 5;
+}
+
+// Call instructions
+void Intel8080::CALL(uint16 data) {
+}
+void Intel8080::CC(uint16 data) {
+}
+void Intel8080::CNC(uint16 data) {
+}
+void Intel8080::CZ(uint16 data) {
+}
+void Intel8080::CNZ(uint16 data) {
+}
+void Intel8080::CP(uint16 data) {
+}
+void Intel8080::CM(uint16 data) {
+}
+void Intel8080::CPE(uint16 data) {
+}
+void Intel8080::CPO(uint16 data) {
+}
+
 void Intel8080::RLC() {
 }
 void Intel8080::RAL() {
@@ -203,27 +274,9 @@ void Intel8080::RPO() {
 }
 void Intel8080::RP() {
 }
-void Intel8080::JNZ() {
-}
-void Intel8080::JNC() {
-}
-void Intel8080::JPO() {
-}
-void Intel8080::JP() {
-}
-void Intel8080::JMP() {
-}
 void Intel8080::OUT() {
 }
 void Intel8080::DI() {
-}
-void Intel8080::CNZ() {
-}
-void Intel8080::CNC() {
-}
-void Intel8080::CPO() {
-}
-void Intel8080::CP() {
 }
 void Intel8080::ADI() {
 }
@@ -241,29 +294,9 @@ void Intel8080::RM() {
 }
 void Intel8080::RET() {
 }
-void Intel8080::PCHL() {
-}
-void Intel8080::JZ() {
-}
-void Intel8080::JC() {
-}
-void Intel8080::JPE() {
-}
-void Intel8080::JM() {
-}
 void Intel8080::IN() {
 }
 void Intel8080::EI() {
-}
-void Intel8080::CZ() {
-}
-void Intel8080::CC() {
-}
-void Intel8080::CPE() {
-}
-void Intel8080::CM() {
-}
-void Intel8080::CALL() {
 }
 void Intel8080::ACI() {
 }
@@ -308,4 +341,11 @@ void Intel8080::ORA_m() {
 void Intel8080::CMP_r(uint8 reg) {
 }
 void Intel8080::CMP_m() {
+}
+void Intel8080::setFlag(int mask, int val) {
+	status = val ? status | mask : status & ~mask;
+}
+int Intel8080::getFlag(int mask) {
+	// !! to turn into a 1 or 0 (hackish I know)
+	return !!(status & mask);
 }

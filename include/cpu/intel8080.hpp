@@ -63,29 +63,29 @@ private:
 	/************************************
 	JUMP
 	*************************************/
-	void JMP();
-	void JC();
-	void JNC();
-	void JZ();
-	void JNZ();
-	void JP();
-	void JM();
-	void JPE();
-	void JPO();
+	void JMP(uint16 data);
+	void JC(uint16 data);
+	void JNC(uint16 data);
+	void JZ(uint16 data);
+	void JNZ(uint16 data);
+	void JP(uint16 data);
+	void JM(uint16 data);
+	void JPE(uint16 data);
+	void JPO(uint16 data);
 	void PCHL();
 
 	/************************************
 	CALL
 	*************************************/
-	void CALL();
-	void CC();
-	void CNC();
-	void CZ();
-	void CNZ();
-	void CP();
-	void CM();
-	void CPE();
-	void CPO();
+	void CALL(uint16 data);
+	void CC(uint16 data);
+	void CNC(uint16 data);
+	void CZ(uint16 data);
+	void CNZ(uint16 data);
+	void CP(uint16 data);
+	void CM(uint16 data);
+	void CPE(uint16 data);
+	void CPO(uint16 data);
 
 	/************************************
 	RETURN
@@ -179,6 +179,9 @@ private:
 	void DCR_E();
 	void DCR_L();
 	void DCR_A();
+
+	void setFlag(int, int);
+	int getFlag(int);
 
 #ifndef TESTING
 public:

@@ -12,6 +12,12 @@
 #define M 6
 #define A 7
 
+#define STATUS_CARRY 		0x01
+#define STATUS_PARITY 		0x04
+#define STATUS_AUX_CARRY 	0x10
+#define STATUS_SIGN 		0x80
+#define STATUS_ZERO 		0x40
+
 class MemoryTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
@@ -321,6 +327,7 @@ public:
 
 	void setUp(void) {
 		// cpu = Intel8080();
+		cpu.pc = 0x0000;
 		for (int i = 0; i <= 0xffff; i++) cpu.memory[i] = 0;
 		cpu.reg[B] = 0xb;
 		cpu.reg[C] = 0xc;
@@ -331,45 +338,249 @@ public:
 		cpu.reg[A] = 0xa;
 		cyclesTmp = cpu.cycles;
 	}
+
 	void test_JMP() {
 		// Test setting the program counter to 3(data) << 8 | 2(data)
-		TS_ASSERT(false);
+		cpu.JMP(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
+		cpu.JMP(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.JMP(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
 	}
+
 	void test_JC() {
-		// Test JMP called if carry bit one
-	    TS_ASSERT(false);
+		cpu.JC(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JC(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Enable carry bit
+		cpu.status = (cpu.status | STATUS_CARRY);
+
+		// PC should now be updating
+		cpu.JC(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JC(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JNC() {
-		// Test JMP called if carry bit 0
-	    TS_ASSERT(false);
+		// Enable carry bit
+		cpu.status = (cpu.status | STATUS_CARRY);
+
+		// Test JMP called if carry bit one
+		cpu.JNC(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JNC(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JNC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Disable carry bit
+		cpu.status = (cpu.status & ~STATUS_CARRY);
+
+		// PC should now be updating
+		cpu.JNC(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JNC(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JNC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JZ() {
-		// Test JMP called if zero bit one
-	    TS_ASSERT(false);
+		cpu.JZ(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JZ(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Enable zero bit
+		cpu.status = (cpu.status | STATUS_ZERO);
+
+		// PC should now be updating
+		cpu.JZ(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JZ(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JNZ() {
+		cpu.status |= STATUS_ZERO;
 		// Test JMP called if zero bit 0
-	    TS_ASSERT(false);
+		cpu.JNZ(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JNZ(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Enable zero bit
+		cpu.status &= ~STATUS_ZERO;
+
+		// PC should now be updating
+		cpu.JNZ(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JNZ(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JP() {
-		// Test JMP called if sign bit 0
-	    TS_ASSERT(false);
+		cpu.status |= STATUS_SIGN;
+
+		// Test JMP called if zero bit 0
+		cpu.JP(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JP(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JP(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Disable sign bit
+		cpu.status &= ~STATUS_SIGN;
+
+		// PC should now be updating
+		cpu.JP(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JP(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JP(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JM() {
-		// Test JMP called if sign bit 1
-	    TS_ASSERT(false);
+		// Test JMP called if zero bit 0
+		cpu.JM(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JM(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JM(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Enable sign bit
+		cpu.status |= STATUS_SIGN;
+
+		// PC should now be updating
+		cpu.JM(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JM(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JM(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JPE() {
-		// Test JMP called if parity 1
-	    TS_ASSERT(false);
+		// Test JMP called if zero bit 0
+		cpu.JPE(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JPE(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JPE(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Enable sign bit
+		cpu.status |= STATUS_PARITY;
+
+		// PC should now be updating
+		cpu.JPE(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JPE(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JPE(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_JPO() {
-		// Test JMP called if parity 0
-	    TS_ASSERT(false);
+		cpu.status |= STATUS_PARITY;
+
+		// Test JMP called if zero bit 0
+		cpu.JPO(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.JPO(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.JPO(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		// Disable sign bit
+		cpu.status &= ~STATUS_PARITY;
+
+		// PC should now be updating
+		cpu.JPO(0x00ce);
+		TS_ASSERT_EQUALS(cpu.pc, 0xce00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+		cpu.JPO(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+		cpu.JPO(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
+
 	void test_PCHL() {
 		// Test loading H << 8 | L into program counter
-	    TS_ASSERT(false);
+		cpu.PCHL();
+	    TS_ASSERT_EQUALS(cpu.pc, 0x1217);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
 	}
 };
 
@@ -377,6 +588,7 @@ class CallTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
 	uint32 cyclesTmp;
+	uint16 spTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -388,35 +600,159 @@ public:
 		cpu.reg[H] = 0x12;
 		cpu.reg[L] = 0x17;
 		cpu.reg[A] = 0xa;
+		cpu.sp = 0;
 		cyclesTmp = cpu.cycles;
+		spTmp = cpu.sp;
 	}
 
 	void test_CALL() {
-	    TS_ASSERT(false);
+		cpu.CALL(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+
+		cpu.CALL(0xadde);
+		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0xbe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xba);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 34);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 4);
+
+		cpu.CALL(0xc0c0);
+		TS_ASSERT_EQUALS(cpu.pc, 0xc0c0);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0xad);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xde);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 51);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 6);
 	}
 	void test_CC() {
-	    TS_ASSERT(false);
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_CARRY, 1);
+
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CNC() {
-	    TS_ASSERT(false);
+		cpu.setFlag(STATUS_CARRY, 1);
+
+		cpu.CNC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_CARRY, 0);
+
+		cpu.CNC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CZ() {
-	    TS_ASSERT(false);
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+
+		cpu.setFlag(STATUS_ZERO, 1);
+
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CNZ() {
-	    TS_ASSERT(false);
+		cpu.setFlag(STATUS_ZERO, 1);
+
+		cpu.CNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_ZERO, 0);
+
+		cpu.CNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CP() {
-	    TS_ASSERT(false);
+		cpu.setFlag(STATUS_SIGN, 1);
+
+		cpu.CNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_SIGN, 0);
+
+		cpu.CNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CM() {
-	    TS_ASSERT(false);
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_SIGN, 1);
+
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CPE() {
-	    TS_ASSERT(false);
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_PARITY, 1);
+
+		cpu.CC(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 	void test_CPO() {
-	    TS_ASSERT(false);
+		cpu.setFlag(STATUS_PARITY, 1);
+
+		cpu.CNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+
+		cpu.setFlag(STATUS_PARITY, 0);
+
+		cpu.CNZ(0xbeba);
+		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
+		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 	}
 };
 
@@ -849,6 +1185,31 @@ public:
 			cpu.memory[i] = 0;
 		}
 		cpu.pc = 0;
+	}
+
+	void test_getFlag(void) {
+		cpu.status |= STATUS_ZERO;
+		cpu.status |= STATUS_PARITY;
+		cpu.status |= STATUS_AUX_CARRY;
+		cpu.status |= STATUS_CARRY;
+		cpu.status |= STATUS_SIGN;
+
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+
+		cpu.status &= ~STATUS_ZERO;
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		cpu.status &= ~STATUS_PARITY;
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		cpu.status &= ~STATUS_AUX_CARRY;
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		cpu.status &= ~STATUS_SIGN;
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		cpu.status &= ~STATUS_CARRY;
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
 	}
 
 	void test_decode() {
