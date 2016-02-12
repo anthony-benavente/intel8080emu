@@ -960,23 +960,200 @@ public:
 		cpu.reg[A] = 0xa;
 		cyclesTmp = cpu.cycles;
 	}
-	void test_INR_R() {
-		TS_ASSERT(false);
+	void test_INR_r() {
+		cpu.INR_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+
+		cpu.INR_r(C);
+		TS_ASSERT_EQUALS(cpu.reg[C], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
+		cpu.INR_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 15);
+
+		cpu.INR_r(L);
+		TS_ASSERT_EQUALS(cpu.reg[L], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.INR_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[D], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 25);
+
+		cpu.INR_r(E);
+		TS_ASSERT_EQUALS(cpu.reg[E], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		cpu.INR_r(A);
+		TS_ASSERT_EQUALS(cpu.reg[A], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 35);
 	}
-	void test_INR_M() {
-	    TS_ASSERT(false);
+
+	void test_INR_m() {
+		cpu.reg[H] = 0xba;
+		cpu.reg[L] = 0xbe;
+		cpu.INR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
+		cpu.INR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.reg[H] = 0xde;
+		cpu.reg[L] = 0xad;
+		cpu.INR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		cpu.INR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
 	}
-	void test_DCR_R() {
-	    TS_ASSERT(false);
+
+	void test_DCR_r() {
+		cpu.INR_r(B);
+		cpu.INR_r(B);
+		cpu.INR_r(C);
+		cpu.INR_r(C);
+		cpu.INR_r(D);
+		cpu.INR_r(D);
+		cpu.INR_r(E);
+		cpu.INR_r(E);
+		cpu.INR_r(H);
+		cpu.INR_r(H);
+		cpu.INR_r(L);
+		cpu.INR_r(L);
+		cpu.INR_r(A);
+		cpu.INR_r(A);
+
+		cpu.DCR_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+
+		cpu.DCR_r(C);
+		TS_ASSERT_EQUALS(cpu.reg[C], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
+		cpu.DCR_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 15);
+
+		cpu.DCR_r(L);
+		TS_ASSERT_EQUALS(cpu.reg[L], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.DCR_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[D], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 25);
+
+		cpu.DCR_r(E);
+		TS_ASSERT_EQUALS(cpu.reg[E], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		cpu.DCR_r(A);
+		TS_ASSERT_EQUALS(cpu.reg[A], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 35);
 	}
-	void test_DCR_M() {
-	    TS_ASSERT(false);
+	void test_DCR_m() {
+		cpu.reg[H] = 0xba;
+		cpu.reg[L] = 0xbe;
+		cpu.INR_m();
+		cpu.INR_m();
+		cpu.DCR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.DCR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.reg[H] = 0xde;
+		cpu.reg[L] = 0xad;
+		cpu.INR_m();
+		cpu.INR_m();
+		cpu.DCR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		cpu.DCR_m();
+		TS_ASSERT_EQUALS(cpu.memory[cpu.getHL()], 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
 	}
 	void test_INX_r() {
-	    TS_ASSERT(false);
+		// Test basic increment
+		cpu.INX_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x0);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0x1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+		cpu.INX_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[D], 0x0);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0x1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.INX_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x0);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 15);
+
+		// Test rollover
+		cpu.reg[C] = 0xff;
+		cpu.reg[D] = 0x32;
+		cpu.reg[E] = 0xff;
+		cpu.reg[H] = 0xba;
+		cpu.reg[L] = 0xff;
+
+		cpu.INX_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x01);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.INX_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[D], 0x33);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 25);
+		cpu.INX_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xbb);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x00);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
 	}
 	void test_DCX_r() {
-		TS_ASSERT(false);
+		cpu.reg[C] = 0x1;
+		cpu.reg[E] = 0x1;
+		cpu.reg[L] = 0x1;
+
+		// Test basic increment
+		cpu.DCX_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x0);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0x0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 5);
+		cpu.DCX_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[D], 0x0);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0x0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+		cpu.DCX_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x0);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 15);
+
+		// Test rollover
+		cpu.reg[B] = 0xff;
+		cpu.reg[C] = 0x00;
+		cpu.reg[D] = 0x33;
+		cpu.reg[E] = 0x00;
+		cpu.reg[H] = 0xbb;
+		cpu.reg[L] = 0x00;
+
+		cpu.DCX_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[B], 0x00);
+		TS_ASSERT_EQUALS(cpu.reg[C], 0xff);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+		cpu.DCX_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[D], 0x32);
+		TS_ASSERT_EQUALS(cpu.reg[E], 0xff);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 25);
+		cpu.DCX_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xba);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xff);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
 	}
 };
 
@@ -997,35 +1174,278 @@ public:
 		cpu.reg[A] = 0xa;
 		cyclesTmp = cpu.cycles;
 	}
-	void test_ADD_R() {
-	    TS_ASSERT(false);
+
+	void test_ADD() {
+		cpu.reg[A] = 0x4;
+		cpu.ADD_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x15);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.ADD_r(C);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x21);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.ADD_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x2e);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
+
+		cpu.ADD_r(E);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x3c);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 16);
+
+		cpu.ADD_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x65);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.ADD_r(A);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xca);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 24);
+
+		cpu.reg[H] = 0x36;
+		cpu.ADD_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+
+		cpu.reg[B] = 0x2;
+		cpu.ADD_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x2);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 32);
+
+		cpu.memory[cpu.getHL()] = 0xfd;
+		cpu.ADD_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 39);
+
+		cpu.memory[cpu.getHL()] = 0x1;
+		cpu.ADD_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 46);
 	}
-	void test_ADD_M() {
-	    TS_ASSERT(false);
+
+	void test_ADC() {
+		cpu.reg[A] = 0x4;
+		cpu.ADC_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x15);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.reg[C] = 0xec;
+		cpu.ADC_r(C);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.ADC_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xf);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
+
+		cpu.memory[cpu.getHL()] = 0xfd;
+		cpu.ADC_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 19);
+
+		cpu.memory[cpu.getHL()] = 0x1;
+		cpu.ADC_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 26);
+
+		cpu.memory[cpu.getHL()] = 0x1;
+		cpu.ADC_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x2);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 33);
 	}
-	void test_ADC_R() {
-	    TS_ASSERT(false);
-	}
-	void test_ADC_M() {
-	    TS_ASSERT(false);
-	}
+
 	void test_ADI() {
-	    TS_ASSERT(false);
+		cpu.ADI(0xba);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xc4);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 7);
+
+		cpu.ADI(0xbe);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x82);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 14);
+
+		cpu.ADI(0x7e);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 21);
+
+		cpu.ADI(0x0);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
 	}
+
 	void test_ACI() {
-	    TS_ASSERT(false);
+		cpu.ACI(0xba);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xc4);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 7);
+
+		cpu.ACI(0xbe);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x82);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 14);
+
+		cpu.ACI(0x7e);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 21);
+
+		cpu.ACI(0x0);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
 	}
-	void test_DAD_B() {
-	    TS_ASSERT(false);
-	}
-	void test_DAD_D() {
-	    TS_ASSERT(false);
-	}
-	void test_DAD_H() {
-	    TS_ASSERT(false);
-	}
-	void test_DAD_SP() {
-	    TS_ASSERT(false);
+
+	void test_DAD() {
+		cpu.DAD_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x1d);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x23);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
+
+		cpu.DAD_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x2a);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x31);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 20);
+
+		cpu.DAD_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x54);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x62);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 30);
+
+		cpu.DAD_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0xa8);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0xc4);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 40);
+
+		cpu.DAD_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x51);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x88);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 50);
+
+		cpu.sp = 1;
+		cpu.DAD_SP();
+		TS_ASSERT_EQUALS(cpu.reg[H], 0x51);
+		TS_ASSERT_EQUALS(cpu.reg[L], 0x89);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 60);
 	}
 };
 
@@ -1046,23 +1466,140 @@ public:
 		cpu.reg[A] = 0xa;
 		cyclesTmp = cpu.cycles;
 	}
-	void test_SUB_R() {
-	    TS_ASSERT(false);
+
+	void test_SUB() {
+		cpu.SUB_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.SUB_r(D);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xf2)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.SUB_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xe0)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
+
+		cpu.memory[cpu.getHL()] = 0xd1;
+		cpu.SUB_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xf)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 19);
 	}
-	void test_SUB_M() {
-	    TS_ASSERT(false);
+
+	void test_SBB() {
+		cpu.SBB_r(B);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.SBB_r(H);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xe7)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.memory[cpu.getHL()] = 0xd8;
+		cpu.SBB_m();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xf)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 15);
 	}
-	void test_SBB_R() {
-	    TS_ASSERT(false);
-	}
-	void test_SBB_M() {
-	    TS_ASSERT(false);
-	}
+
 	void test_SUI() {
-		TS_ASSERT(false);
+		cpu.SUI(0xba);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xb0)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.SUI(0xaa);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x6)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.SUI(0x1);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
 	}
 	void test_SBI() {
-		TS_ASSERT(false);
+		cpu.SUI(0xba);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xb0)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.SUI(0xaa);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x6)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.SUI(0x7);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
+
+		cpu.SUI(0x1);
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xfd)
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_AUX_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_ZERO), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_PARITY), 0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_SIGN), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 16);
 	}
 };
 
