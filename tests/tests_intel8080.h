@@ -1848,20 +1848,80 @@ public:
 		cpu.reg[E] = 0xe;
 		cpu.reg[H] = 0x12;
 		cpu.reg[L] = 0x17;
-		cpu.reg[A] = 0xa;
+		cpu.reg[A] = 0Xff;
 		cyclesTmp = cpu.cycles;
 	}
 	void test_RLC() {
-	    TS_ASSERT(false);
+		cpu.RLC();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.reg[A] = 0x80;
+		cpu.RLC();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x1);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.reg[A] = 0x66;
+		cpu.RLC();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xcc);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
 	}
 	void test_RRC() {
-	    TS_ASSERT(false);
+		cpu.RRC();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xff);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.reg[A] = 0x1;
+		cpu.RRC();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x80);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.reg[A] = 0xcc;
+		cpu.RRC();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x66);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
 	}
 	void test_RAL() {
-	    TS_ASSERT(false);
+		cpu.RAL();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xfe);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.reg[A] = 0x80;
+		cpu.RAL();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x0);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.reg[A] = 0x66;
+		cpu.RAL();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0xcc);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
 	}
 	void test_RAR() {
-	    TS_ASSERT(false);
+		cpu.RAR();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x7f);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
+
+		cpu.reg[A] = 0x1;
+		cpu.RAR();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x00);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 1);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 8);
+
+		cpu.reg[A] = 0xcc;
+		cpu.RAR();
+		TS_ASSERT_EQUALS(cpu.reg[A], 0x66);
+		TS_ASSERT_EQUALS(cpu.getFlag(STATUS_CARRY), 0);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 12);
 	}
 };
 
@@ -1956,7 +2016,7 @@ public:
 
 		cpu.NOP();
 
-		// NOP should have done nothing
+		// NOP should have done nothing=
 		TS_ASSERT_EQUALS(cpu.sp, 0);
 		TS_ASSERT_EQUALS(cpu.pc, 0);
 		TS_ASSERT_EQUALS(cpu.inte, false);

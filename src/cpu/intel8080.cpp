@@ -562,33 +562,54 @@ void Intel8080::CPI(uint8 data) {
 	cycles += 7;
 }
 
-
+// Rotate Instructions
 void Intel8080::RLC() {
+	setFlag(STATUS_CARRY, (reg[A] & 0x80) == 0x80);
+	reg[A] <<= 1;
+	reg[A] |= getFlag(STATUS_CARRY);
+	cycles += 4;
+}
+void Intel8080::RRC() {
+	setFlag(STATUS_CARRY, reg[A] & 0x1);
+	reg[A] >>= 1;
+	reg[A] |= getFlag(STATUS_CARRY) << 7;
+	cycles += 4;
 }
 void Intel8080::RAL() {
+	setFlag(STATUS_CARRY, (reg[A] & 0x80) == 0x80);
+	reg[A] <<= 1;
+	cycles += 4;
 }
-void Intel8080::DAA() {
+void Intel8080::RAR() {
+	setFlag(STATUS_CARRY, reg[A] & 0x1);
+	reg[A] >>= 1;
+	cycles += 4;
+}
+
+// Special Instructions
+void Intel8080::CMA() {
 }
 void Intel8080::STC() {
 }
-void Intel8080::RRC() {
-}
-void Intel8080::RAR() {
-}
-void Intel8080::CMA() {
-}
 void Intel8080::CMC() {
 }
-void Intel8080::HLT() {
+void Intel8080::DAA() {
+}
+
+// Input/Output Instructions
+void Intel8080::IN() {
 }
 void Intel8080::OUT() {
 }
-void Intel8080::DI() {
-}
-void Intel8080::IN() {
-}
+
+// Control Instructions
 void Intel8080::EI() {
 }
+void Intel8080::DI() {
+}
+void Intel8080::HLT() {
+}
+
 void Intel8080::setFlag(int mask, int val) {
 	status = val ? status | mask : status & ~mask;
 }
