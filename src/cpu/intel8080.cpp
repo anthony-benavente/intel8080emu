@@ -480,6 +480,89 @@ void Intel8080::SUI(uint8 data) {
 	cycles += 7;
 }
 
+// Logical instructions
+void Intel8080::performAND(uint8 data) {
+	setFlag(STATUS_CARRY, 0);
+	setFlag(STATUS_AUX_CARRY, 0); // TODO: Possible bug. Is aux carry reset?
+	reg[A] &= data;
+	setFlag(STATUS_ZERO, reg[A] == 0);
+	setFlag(STATUS_SIGN, reg[A] >> 7);
+	setFlag(STATUS_PARITY, (reg[A] & 0x1) == 0);
+}
+void Intel8080::performXOR(uint8 data) {
+	setFlag(STATUS_CARRY, 0);
+	setFlag(STATUS_AUX_CARRY, 0); // TODO: Possible bug. Is aux carry reset?
+	reg[A] ^= data;
+	setFlag(STATUS_ZERO, reg[A] == 0);
+	setFlag(STATUS_SIGN, reg[A] >> 7);
+	setFlag(STATUS_PARITY, (reg[A] & 0x1) == 0);
+}
+void Intel8080::performOR(uint8 data) {
+	setFlag(STATUS_CARRY, 0);
+	setFlag(STATUS_AUX_CARRY, 0); // TODO: Possible bug. Is aux carry reset?
+	reg[A] |= data;
+	setFlag(STATUS_ZERO, reg[A] == 0);
+	setFlag(STATUS_SIGN, reg[A] >> 7);
+	setFlag(STATUS_PARITY, (reg[A] & 0x1) == 0);
+}
+void Intel8080::performCMP(uint8 data) {
+	resetFlags();
+	setFlag(STATUS_CARRY, reg[A] - data < 0);
+	setFlag(STATUS_AUX_CARRY, (uint8) (reg[A] - data) > 0xf); // TODO: Possible bug here
+	setFlag(STATUS_ZERO, ((reg[A] - data) & 0xff) == 0);
+	setFlag(STATUS_PARITY, ((reg[A] - data) & 0x1) == 0);
+	setFlag(STATUS_SIGN, ((reg[A] - data) & 0x80) >> 7);
+}
+void Intel8080::ANA_r(uint8 regi) {
+	performAND(reg[regi]);
+	cycles += 4;
+}
+void Intel8080::ANA_m() {
+	performAND(memory[getHL()]);
+	cycles += 7;
+}
+void Intel8080::XRA_r(uint8 regi) {
+	performXOR(reg[regi]);
+	cycles += 4;
+}
+void Intel8080::XRA_m() {
+	performXOR(memory[getHL()]);
+	cycles += 7;
+}
+void Intel8080::ORA_r(uint8 regi) {
+	performOR(reg[regi]);
+	cycles += 4;
+}
+void Intel8080::ORA_m() {
+	performOR(memory[getHL()]);
+	cycles += 7;
+}
+void Intel8080::CMP_r(uint8 regi) {
+	performCMP(reg[regi]);
+	cycles += 4;
+}
+void Intel8080::CMP_m() {
+	performCMP(memory[getHL()]);
+	cycles += 7;
+}
+void Intel8080::ANI(uint8 data) {
+	performAND(data);
+	cycles += 7;
+}
+void Intel8080::XRI(uint8 data) {
+	performXOR(data);
+	cycles += 7;
+}
+void Intel8080::ORI(uint8 data) {
+	performOR(data);
+	cycles += 7;
+}
+void Intel8080::CPI(uint8 data) {
+	performCMP(data);
+	cycles += 7;
+}
+
+
 void Intel8080::RLC() {
 }
 void Intel8080::RAL() {
@@ -502,29 +585,9 @@ void Intel8080::OUT() {
 }
 void Intel8080::DI() {
 }
-void Intel8080::ANI() {
-}
-void Intel8080::ORI() {
-}
 void Intel8080::IN() {
 }
 void Intel8080::EI() {
-}
-void Intel8080::ANA_r(uint8 reg) {
-}
-void Intel8080::ANA_m() {
-}
-void Intel8080::XRA_r(uint8 reg) {
-}
-void Intel8080::XRA_m() {
-}
-void Intel8080::ORA_r(uint8 reg) {
-}
-void Intel8080::ORA_m() {
-}
-void Intel8080::CMP_r(uint8 reg) {
-}
-void Intel8080::CMP_m() {
 }
 void Intel8080::setFlag(int mask, int val) {
 	status = val ? status | mask : status & ~mask;

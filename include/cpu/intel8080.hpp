@@ -143,6 +143,10 @@ private:
 	/************************************
 	LOGICAL
 	*************************************/
+	void performAND(uint8 data);
+	void performXOR(uint8 data);
+	void performOR(uint8 data);
+	void performCMP(uint8 data);
 	void ANA_r(uint8 reg);
 	void ANA_m();
 	void XRA_r(uint8 reg);
@@ -151,10 +155,10 @@ private:
 	void ORA_m();
 	void CMP_r(uint8 reg);
 	void CMP_m();
-	void ANI();
-	void XRI();
-	void ORI();
-	void CPI();
+	void ANI(uint8 data);
+	void XRI(uint8 data);
+	void ORI(uint8 data);
+	void CPI(uint8 data);
 
 	void NOP();
 	void RLC();
