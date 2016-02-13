@@ -118,18 +118,21 @@ private:
 	/************************************
 	ADD
 	*************************************/
+	void performAdd(uint8 data);
 	void ADD_r(uint8 reg);
 	void ADD_m();
 	void ADC_r(uint8 reg);
 	void ADC_m();
 	void ADI(uint8 data);
 	void ACI(uint8 data);
+	void performDAD(uint16 data);
 	void DAD_r(uint8 pair);
 	void DAD_SP();
 
 	/************************************
 	SUBTRACT
 	*************************************/
+	void performSub(uint8 data);
 	void SUB_r(uint8 reg);
 	void SUB_m();
 	void SBB_r(uint8 reg);
@@ -185,6 +188,7 @@ private:
 	void setFlag(int, int);
 	int getFlag(int);
 	uint16 getHL();
+	void resetFlags();
 
 #ifndef TESTING
 public:

@@ -364,49 +364,120 @@ void Intel8080::RPO() {
 }
 
 // Increment/Decrement instructions
-void Intel8080::INR_r(uint8 reg) {
+void Intel8080::INR_r(uint8 regi) {
+	reg[regi]++;
+	cycles += 5;
 }
 void Intel8080::INR_m() {
+	memory[getHL()]++;
+	cycles += 10;
 }
-void Intel8080::DCR_r(uint8 reg) {
+void Intel8080::DCR_r(uint8 regi) {
+	reg[regi]--;
+	cycles += 5;
 }
 void Intel8080::DCR_m() {
+	memory[getHL()]--;
+	cycles += 10;
 }
 void Intel8080::INX_r(uint8 pair) {
+	uint16 num = (reg[pair] << 8) | reg[pair + 1];
+	num++;
+	reg[pair] = (num >> 8) & 0xff;
+	reg[pair + 1] = num & 0xff;
+	cycles += 5;
 }
 void Intel8080::DCX_r(uint8 pair) {
+	uint16 num = (reg[pair] << 8) | reg[pair + 1];
+	num--;
+	reg[pair] = (num >> 8) & 0xff;
+	reg[pair + 1] = num & 0xff;
+	cycles += 5;
 }
 
 // Add instructions
-void Intel8080::ADD_r(uint8 reg) {
+void Intel8080::performAdd(uint8 data) {
+	resetFlags();
+	setFlag(STATUS_CARRY, reg[A] + data > 0xff);
+	setFlag(STATUS_AUX_CARRY, reg[A] + data > 0xf);
+	setFlag(STATUS_ZERO, ((reg[A] + data) & 0xff) == 0);
+	setFlag(STATUS_PARITY, ((reg[A] + data) & 0x1) == 0);
+	setFlag(STATUS_SIGN, ((reg[A] + data) & 0x80) >> 7);
+	reg[A] += data;
+}
+void Intel8080::ADD_r(uint8 regi) {
+	performAdd(reg[regi]);
+	cycles += 4;
 }
 void Intel8080::ADD_m() {
+	performAdd(memory[getHL()]);
+	cycles += 7;
 }
-void Intel8080::ADC_r(uint8 reg) {
+void Intel8080::ADC_r(uint8 regi) {
+	performAdd(reg[regi] + getFlag(STATUS_CARRY));
+	cycles += 4;
 }
 void Intel8080::ADC_m() {
+	performAdd(memory[getHL()] + getFlag(STATUS_CARRY));
+	cycles += 7;
 }
 void Intel8080::ADI(uint8 data) {
+	performAdd(data);
+	cycles += 7;
 }
 void Intel8080::ACI(uint8 data) {
+	performAdd(data + getFlag(STATUS_CARRY));
+	cycles += 7;
+}
+void Intel8080::performDAD(uint16 data) {
+	uint16 hl = getHL();
+	setFlag(STATUS_CARRY, hl + data > 0xffff);
+	hl += data;
+	reg[H] = (hl >> 8) & 0xff;
+	reg[L] = hl & 0xff;
 }
 void Intel8080::DAD_r(uint8 pair) {
+	performDAD((reg[pair] << 8) | reg[pair + 1]);
+	cycles += 10;
 }
 void Intel8080::DAD_SP() {
+	performDAD(sp);
+	cycles += 10;
 }
 
 // Subtract instructions
-void Intel8080::SUB_r(uint8 reg) {
+void Intel8080::performSub(uint8 data) {
+	resetFlags();
+	setFlag(STATUS_CARRY, reg[A] - data < 0);
+	setFlag(STATUS_AUX_CARRY, (uint8) (reg[A] - data) > 0xf); // TODO: Possible bug here
+	setFlag(STATUS_ZERO, ((reg[A] - data) & 0xff) == 0);
+	setFlag(STATUS_PARITY, ((reg[A] - data) & 0x1) == 0);
+	setFlag(STATUS_SIGN, ((reg[A] - data) & 0x80) >> 7);
+	reg[A] -= data;
+}
+void Intel8080::SUB_r(uint8 regi) {
+	performSub(reg[regi]);
+	cycles += 4;
 }
 void Intel8080::SUB_m() {
+	performSub(memory[getHL()]);
+	cycles += 7;
 }
-void Intel8080::SBB_r(uint8 reg) {
+void Intel8080::SBB_r(uint8 regi) {
+	performSub(reg[regi] + getFlag(STATUS_CARRY));
+	cycles += 4;
 }
 void Intel8080::SBB_m() {
+	performSub(memory[getHL()] + getFlag(STATUS_CARRY));
+	cycles += 7;
 }
 void Intel8080::SBI(uint8 data) {
+	performSub(data + getFlag(STATUS_CARRY));
+	cycles += 7;
 }
 void Intel8080::SUI(uint8 data) {
+	performSub(data);
+	cycles += 7;
 }
 
 void Intel8080::RLC() {
@@ -464,4 +535,7 @@ int Intel8080::getFlag(int mask) {
 }
 uint16 Intel8080::getHL() {
 	return (reg[H] << 8) | reg[L];
+}
+void Intel8080::resetFlags() {
+	status = 0xa;
 }
