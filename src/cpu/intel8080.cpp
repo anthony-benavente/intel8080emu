@@ -230,22 +230,112 @@ void Intel8080::PCHL() {
 
 // Call instructions
 void Intel8080::CALL(uint16 data) {
+	memory[--sp] = (pc >> 8) & 0xff;
+	memory[--sp] = pc & 0xff;
+	pc = ((data & 0xff) << 8) | ((data & 0xff00) >> 8);
+	cycles += 17;
 }
 void Intel8080::CC(uint16 data) {
+	if (getFlag(STATUS_CARRY)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CNC(uint16 data) {
+	if (!getFlag(STATUS_CARRY)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CZ(uint16 data) {
+	if (getFlag(STATUS_ZERO)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CNZ(uint16 data) {
+	if (!getFlag(STATUS_ZERO)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CP(uint16 data) {
+	if (!getFlag(STATUS_SIGN)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CM(uint16 data) {
+	if (getFlag(STATUS_SIGN)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CPE(uint16 data) {
+	if (getFlag(STATUS_PARITY)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
 }
 void Intel8080::CPO(uint16 data) {
+	if (!getFlag(STATUS_PARITY)){
+		CALL(data);
+	} else {
+		cycles += 11;
+	}
+}
+
+// Increment/Decrement instructions
+void Intel8080::INR_r(uint8 reg) {
+}
+void Intel8080::INR_m() {
+}
+void Intel8080::DCR_r(uint8 reg) {
+}
+void Intel8080::DCR_m() {
+}
+void Intel8080::INX_r(uint8 pair) {
+}
+void Intel8080::DCX_r(uint8 pair) {
+}
+
+// Add instructions
+void Intel8080::ADD_r(uint8 reg) {
+}
+void Intel8080::ADD_m() {
+}
+void Intel8080::ADC_r(uint8 reg) {
+}
+void Intel8080::ADC_m() {
+}
+void Intel8080::ADI(uint8 data) {
+}
+void Intel8080::ACI(uint8 data) {
+}
+void Intel8080::DAD_r(uint8 pair) {
+}
+void Intel8080::DAD_SP() {
+}
+
+// Subtract instructions
+void Intel8080::SUB_r(uint8 reg) {
+}
+void Intel8080::SUB_m() {
+}
+void Intel8080::SBB_r(uint8 reg) {
+}
+void Intel8080::SBB_m() {
+}
+void Intel8080::SBI(uint8 data) {
+}
+void Intel8080::SUI(uint8 data) {
 }
 
 void Intel8080::RLC() {
@@ -278,8 +368,6 @@ void Intel8080::OUT() {
 }
 void Intel8080::DI() {
 }
-void Intel8080::ADI() {
-}
 void Intel8080::ANI() {
 }
 void Intel8080::ORI() {
@@ -297,34 +385,6 @@ void Intel8080::RET() {
 void Intel8080::IN() {
 }
 void Intel8080::EI() {
-}
-void Intel8080::ACI() {
-}
-void Intel8080::SBI() {
-}
-void Intel8080::INX_r(uint8 pair) {
-}
-void Intel8080::INR_r(uint8 reg) {
-}
-void Intel8080::INR_m() {
-}
-void Intel8080::DCR_r(uint8 reg) {
-}
-void Intel8080::DCR_m() {
-}
-void Intel8080::DAD_r(uint8 pair) {
-}
-void Intel8080::ADD(uint8 reg) {
-}
-void Intel8080::ADC(uint8 reg) {
-}
-void Intel8080::SUB_r(uint8 reg) {
-}
-void Intel8080::SUB_m() {
-}
-void Intel8080::SBB_r(uint8 reg) {
-}
-void Intel8080::SBB_m() {
 }
 void Intel8080::ANA_r(uint8 reg) {
 }

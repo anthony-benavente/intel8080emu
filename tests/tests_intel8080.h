@@ -215,7 +215,7 @@ public:
 	}
 
 	void test_PUSH() {
-		uint16 tmpSP = cpu.sp;
+		uint32 tmpSP = 0xffff + 1;
 
 		// Test pushing B,C to stack
 		cpu.PUSH(B);
@@ -336,7 +336,7 @@ public:
 		cpu.reg[H] = 0x12;
 		cpu.reg[L] = 0x17;
 		cpu.reg[A] = 0xa;
-		cpu.sp = 0xffff + 1;
+		cpu.sp = 0x0;
 		cyclesTmp = cpu.cycles;
 	}
 
@@ -601,38 +601,41 @@ public:
 		cpu.reg[H] = 0x12;
 		cpu.reg[L] = 0x17;
 		cpu.reg[A] = 0xa;
+		cpu.cycles = 0;
 		cyclesTmp = cpu.cycles;
-		cpu.sp = 0xffff + 1;
+		cpu.pc = 0;
+		cpu.status = 0;
+		cpu.sp = 0;
 		spTmp = cpu.sp;
 	}
 
 	void test_CALL() {
 		cpu.CALL(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
 
 		cpu.CALL(0xadde);
 		TS_ASSERT_EQUALS(cpu.pc, 0xdead);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffc);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0xbe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xba);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 34);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 4);
 
 		cpu.CALL(0xc0c0);
 		TS_ASSERT_EQUALS(cpu.pc, 0xc0c0);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffa);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0xad);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xde);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 51);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 6);
 	}
 	void test_CC() {
 		cpu.CC(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_CARRY, 1);
 
@@ -640,8 +643,8 @@ public:
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CNC() {
 		cpu.setFlag(STATUS_CARRY, 1);
@@ -649,7 +652,7 @@ public:
 		cpu.CNC(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_CARRY, 0);
 
@@ -657,22 +660,23 @@ public:
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CZ() {
-		cpu.CC(0xbeba);
+		cpu.CZ(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_ZERO, 1);
 
-		cpu.CC(0xbeba);
+		cpu.CZ(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CNZ() {
 		cpu.setFlag(STATUS_ZERO, 1);
@@ -680,7 +684,7 @@ public:
 		cpu.CNZ(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_ZERO, 0);
 
@@ -688,72 +692,72 @@ public:
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CP() {
 		cpu.setFlag(STATUS_SIGN, 1);
 
-		cpu.CNZ(0xbeba);
+		cpu.CP(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_SIGN, 0);
 
-		cpu.CNZ(0xbeba);
+		cpu.CP(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CM() {
-		cpu.CC(0xbeba);
+		cpu.CM(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_SIGN, 1);
 
-		cpu.CC(0xbeba);
+		cpu.CM(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CPE() {
-		cpu.CC(0xbeba);
+		cpu.CPE(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_PARITY, 1);
 
-		cpu.CC(0xbeba);
+		cpu.CPE(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 	void test_CPO() {
 		cpu.setFlag(STATUS_PARITY, 1);
 
-		cpu.CNZ(0xbeba);
+		cpu.CPO(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 11);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp);
+		TS_ASSERT_EQUALS(cpu.sp, 0x0);
 
 		cpu.setFlag(STATUS_PARITY, 0);
 
-		cpu.CNZ(0xbeba);
+		cpu.CPO(0xbeba);
 		TS_ASSERT_EQUALS(cpu.pc, 0xbabe);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x00);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0x00);
-		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 17);
-		TS_ASSERT_EQUALS(cpu.sp, spTmp - 2);
+		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 28);
+		TS_ASSERT_EQUALS(cpu.sp, 0xfffe);
 	}
 };
 

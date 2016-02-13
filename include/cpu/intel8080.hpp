@@ -118,9 +118,12 @@ private:
 	/************************************
 	ADD
 	*************************************/
-	void ADD(uint8 reg);
-	void ADC(uint8 reg);
-	void ADI();
+	void ADD_r(uint8 reg);
+	void ADD_m();
+	void ADC_r(uint8 reg);
+	void ADC_m();
+	void ADI(uint8 data);
+	void ACI(uint8 data);
 	void DAD_r(uint8 pair);
 	void DAD_SP();
 
@@ -131,8 +134,8 @@ private:
 	void SUB_m();
 	void SBB_r(uint8 reg);
 	void SBB_m();
-	void SUI();
-	void SBI();
+	void SUI(uint8 data);
+	void SBI(uint8 data);
 
 	/************************************
 	LOGICAL
@@ -164,7 +167,6 @@ private:
 	void DI();
 	void IN();
 	void EI();
-	void ACI();
 
 	// 4 types for B, D, H, SP
 	void MVI_B();
