@@ -16,6 +16,7 @@ public:
 private:
 #endif
 
+	bool halt;
 	bool inte;
 	uint8 reg[8];
 	uint16 pc;
@@ -23,9 +24,7 @@ private:
 	uint32 cycles;
 	// uint8 io[0xff + 1];
 
-	// std::stack<uint16> stack;
 	uint8 memory[0xffff + 1];
-	// uint8 gfx[256 * 224];
 	uint8 status;
 
 	uint8 getNextOp();
@@ -160,34 +159,37 @@ private:
 	void ORI(uint8 data);
 	void CPI(uint8 data);
 
-	void NOP();
-	void RLC();
-	void RAL();
-	void DAA();
-	void STC();
-	void RRC();
-	void RAR();
-	void CMA();
-	void CMC();
-	void HLT();
-	void OUT();
-	void DI();
-	void IN();
-	void EI();
 
-	// 4 types for B, D, H, SP
-	void MVI_B();
-	void MVI_D();
-	void MVI_H();
-	void MVI_M();
-	void INR_C();
-	void INR_E();
-	void INR_L();
-	void INR_A();
-	void DCR_C();
-	void DCR_E();
-	void DCR_L();
-	void DCR_A();
+	/************************************
+	ROTATE
+	*************************************/
+	void RLC();
+	void RRC();
+	void RAL();
+	void RAR();
+
+
+	/************************************
+	SPECIAL
+	*************************************/
+	void CMA();
+	void STC();
+	void CMC();
+	void DAA();
+
+	/************************************
+	INPUT/OUTPUT
+	*************************************/
+	void IN();
+	void OUT();
+
+	/************************************
+	CONTROL
+	*************************************/
+	void EI();
+	void DI();
+	void NOP();
+	void HLT();
 
 	void setFlag(int, int);
 	int getFlag(int);

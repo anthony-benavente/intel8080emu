@@ -48,8 +48,6 @@ uint8 Intel8080::getNextOp() {
 
 void Intel8080::decode(uint8 op) {
 }
-void Intel8080::NOP() {
-}
 
 void Intel8080::RST(int val) {
 	memory[--sp] = pc;
@@ -588,12 +586,36 @@ void Intel8080::RAR() {
 
 // Special Instructions
 void Intel8080::CMA() {
+	reg[A] = ~reg[A];
+	cycles += 4;
 }
 void Intel8080::STC() {
+	setFlag(STATUS_CARRY, 1);
+	cycles += 4;
 }
 void Intel8080::CMC() {
+	setFlag(STATUS_CARRY, !getFlag(STATUS_CARRY));
+	cycles += 4;
 }
 void Intel8080::DAA() {
+	uint8 lowNibble = reg[A] & 0xf;
+
+	if (lowNibble > 9 || getFlag(STATUS_AUX_CARRY)) {
+		setFlag(STATUS_AUX_CARRY, lowNibble + 6 > 0xf);
+		reg[A] += 6;
+	}
+	uint8 upNibble = (reg[A] & 0xf0) >> 4;
+	if (upNibble > 9) {
+		upNibble += 6;
+		setFlag(STATUS_CARRY, upNibble > 0xf);
+		upNibble &= 0xf;
+		reg[A] &= 0xf;
+		reg[A] |= (upNibble << 4);
+	}
+	setFlag(STATUS_ZERO, reg[A] == 0);
+	setFlag(STATUS_PARITY, !(reg[A] & 0x1));
+	setFlag(STATUS_SIGN, reg[A] >> 7);
+	cycles += 4;
 }
 
 // Input/Output Instructions
@@ -604,10 +626,19 @@ void Intel8080::OUT() {
 
 // Control Instructions
 void Intel8080::EI() {
+	inte = true;
+	cycles += 4;
 }
 void Intel8080::DI() {
+	inte = false;
+	cycles += 4;
+}
+void Intel8080::NOP() {
+	cycles += 4;
 }
 void Intel8080::HLT() {
+	halt = true;
+	cycles += 7;
 }
 
 void Intel8080::setFlag(int mask, int val) {
