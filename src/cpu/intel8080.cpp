@@ -292,6 +292,77 @@ void Intel8080::CPO(uint16 data) {
 	}
 }
 
+// Return instructions
+void Intel8080::RET() {
+	pc = (memory[sp + 1] << 8) | memory[sp];
+	sp += 2;
+	cycles += 10;
+}
+void Intel8080::RC() {
+	cycles += 1;
+	if (getFlag(STATUS_CARRY)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RNC() {
+	cycles += 1;
+	if (!getFlag(STATUS_CARRY)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RZ() {
+	cycles += 1;
+	if (getFlag(STATUS_ZERO)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RNZ() {
+	cycles += 1;
+	if (!getFlag(STATUS_ZERO)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RP() {
+	cycles += 1;
+	if (!getFlag(STATUS_SIGN)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RM() {
+	cycles += 1;
+	if (getFlag(STATUS_SIGN)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RPE() {
+	cycles += 1;
+	if (getFlag(STATUS_PARITY)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+void Intel8080::RPO() {
+	cycles += 1;
+	if (!getFlag(STATUS_PARITY)) {
+		RET();
+	} else {
+		cycles += 4;
+	}
+}
+
 // Increment/Decrement instructions
 void Intel8080::INR_r(uint8 reg) {
 }
@@ -356,14 +427,6 @@ void Intel8080::CMC() {
 }
 void Intel8080::HLT() {
 }
-void Intel8080::RNZ() {
-}
-void Intel8080::RNC() {
-}
-void Intel8080::RPO() {
-}
-void Intel8080::RP() {
-}
 void Intel8080::OUT() {
 }
 void Intel8080::DI() {
@@ -371,16 +434,6 @@ void Intel8080::DI() {
 void Intel8080::ANI() {
 }
 void Intel8080::ORI() {
-}
-void Intel8080::RZ() {
-}
-void Intel8080::RC() {
-}
-void Intel8080::RPE() {
-}
-void Intel8080::RM() {
-}
-void Intel8080::RET() {
 }
 void Intel8080::IN() {
 }
