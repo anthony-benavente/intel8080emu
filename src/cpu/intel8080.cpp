@@ -34,8 +34,10 @@ void Intel8080::loadProgram(program_t *program) {
 }
 
 void Intel8080::emulateCycle() {
-	uint8 op = getNextOp();
-	decode(op);
+	while (!halt && !terminate) {
+		uint8 op = getNextOp();
+		decode(op);
+	}
 }
 
 unsigned char Intel8080::getPixel(int x, int y) {
@@ -47,6 +49,235 @@ uint8 Intel8080::getNextOp() {
 }
 
 void Intel8080::decode(uint8 op) {
+	uint8 next = memory[pc + 1];
+	uint16 nextTwo = (next << 8) | memory[pc + 2];
+	switch (op) {
+		case 0x00: case 0x10: case 0x20: case 0x30:
+		case 0x08: case 0x18: case 0x28: case 0x38: NOP(); break;
+
+		case 0x01: LXI_r(B, nextTwo); break;
+		case 0x11: LXI_r(D, nextTwo); break;
+		case 0x21: LXI_r(H, nextTwo); break;
+		case 0x31: LXI_SP(nextTwo); break;
+
+		case 0x02: STAX(B); break;
+		case 0x12: STAX(D); break;
+		case 0x22: SHLD(nextTwo); break;
+		case 0x32: STA(nextTwo); break;
+
+		case 0x03: INX_r(B); break;
+		case 0x13: INX_r(D); break;
+		case 0x23: INX_r(H); break;
+		case 0x33: INX_SP(); break;
+
+		case 0x04: case 0x14: case 0x24: case 0x0c:
+		case 0x1c: case 0x2c: case 0x3c: // INR_r
+			INR_r(getReg((op & 0x38) >> 3));
+			break;
+		case 0x34:
+			INR_m();
+			break;
+
+		case 0x05: case 0x15: case 0x25: case 0x0d:
+		case 0x1d: case 0x2d: case 0x3d: // DCR_r
+			DCR_r(getReg((op & 0x38) >> 3));
+			break;
+		case 0x35: DCR_m(); break;
+
+		case 0x06: case 0x16: case 0x26: case 0xe:
+		case 0x1e: case 0x2e: case 0x3e: // MVI_r
+			MVI_r(getReg((op & 0x38) >> 3), next);
+			break;
+		case 0x36: MVI_m(next); break;
+
+		case 0x07: RLC(); break;
+		case 0x17: RAL(); break;
+		case 0x27: DAA(); break;
+		case 0x37: STC(); break;
+
+		case 0x09: case 0x19: case 0x29: // DAD_r
+			DAD_r(getRegPair((op & 0x30) >> 4));
+			break;
+		case 0x39: DAD_SP(); break;
+
+		case 0x0a: LDAX(B); break;
+		case 0x1a: LDAX(H);	break;
+		case 0x2a: LHLD(nextTwo); break;
+		case 0x3a: LDA(nextTwo); break;
+
+		case 0x0b: case 0x1b: case 0x2b: // DCX_r
+			DCX_r(getRegPair((op & 30) >> 4));
+			break;
+		case 0x3b: DCX_SP(); break;
+
+		case 0x0f: RRC(); break;
+		case 0x1f: RAR(); break;
+		case 0x2f: CMA(); break;
+		case 0x3f: CMC(); break;
+
+		case 0x40: case 0x41: case 0x42: case 0x43:
+		case 0x44: case 0x45: case 0x47:
+		case 0x48: case 0x49: case 0x4a: case 0x4b:
+		case 0x4c: case 0x4d: case 0x4f:
+		case 0x50: case 0x51: case 0x52: case 0x53:
+		case 0x54: case 0x55: case 0x57:
+		case 0x58: case 0x59: case 0x5a: case 0x5b:
+		case 0x5c: case 0x5d: case 0x5f:
+		case 0x60: case 0x61: case 0x62: case 0x63:
+		case 0x64: case 0x65: case 0x67:
+		case 0x68: case 0x69: case 0x6a: case 0x6b:
+		case 0x6c: case 0x6d: case 0x6f:
+		case 0x78: case 0x79: case 0x7a: case 0x7b:
+		case 0x7c: case 0x7d: case 0x7f: // MOV_r_r
+			MOV_r(getReg((op & 0x38) >> 3), getReg(op & 0x7));
+			break;
+		case 0x46: case 0x56: case 0x66: case 0x4e:
+		case 0x5e: case 0x6e: case 0x7e: // MOV_r_m
+			MOV_r_m(getReg((op & 0x38) >> 3));
+			break;
+		case 0x70: case 0x71: case 0x72: case 0x73:
+		case 0x74: case 0x75: case 0x77: // MOV_m_r
+			MOV_m_r(getReg(op & 0x7));
+			break;
+
+		case 0x80: case 0x81: case 0x82: case 0x83:
+		case 0x84: case 0x85: case 0x87: // ADD_r
+			ADD_r(getReg(op & 0x7));
+			break;
+		case 0x86:
+			ADD_m();
+			break;
+
+		case 0x88: case 0x89: case 0x8a: case 0x8b:
+		case 0x8c: case 0x8d: case 0x8f: // ADC_r
+			ADC_r(getReg(op & 0x7));
+		 	break;
+		case 0x8e:
+			ADC_m();
+			break;
+
+		case 0x90: case 0x91: case 0x92: case 0x93:
+		case 0x94: case 0x95: case 0x97: // ADD_r
+			SUB_r(getReg(op & 0x7));
+			break;
+		case 0x96:
+			SUB_m();
+			break;
+
+		case 0x98: case 0x99: case 0x9a: case 0x9b:
+		case 0x9c: case 0x9d: case 0x9f: // ADC_r
+			SBB_r(getReg(op & 0x7));
+		 	break;
+		case 0x9e:
+			SBB_m();
+			break;
+
+		case 0xa0: case 0xa1: case 0xa2: case 0xa3:
+		case 0xa4: case 0xa5: case 0xa7: // ADD_r
+			ANA_r(getReg(op & 0x7));
+			break;
+		case 0xa6:
+			ANA_m();
+			break;
+
+		case 0xa8: case 0xa9: case 0xaa: case 0xab:
+		case 0xac: case 0xad: case 0xaf: // ADC_r
+			XRA_r(getReg(op & 0x7));
+		 	break;
+		case 0xae:
+			XRA_m();
+			break;
+
+		case 0xb0: case 0xb1: case 0xb2: case 0xb3:
+		case 0xb4: case 0xb5: case 0xb7: // ADD_r
+			ORA_r(getReg(op & 0x7));
+			break;
+		case 0xb6:
+			ORA_m();
+			break;
+
+		case 0xb8: case 0xb9: case 0xba: case 0xbb:
+		case 0xbc: case 0xbd: case 0xbf: // ADC_r
+			CMP_r(getReg(op & 0x7));
+		 	break;
+		case 0xbe:
+			CMP_m();
+			break;
+
+		case 0xc0: RNZ(); break;
+		case 0xd0: RNC(); break;
+		case 0xe0: RPO(); break;
+		case 0xf0: RP(); break;
+
+		case 0xc1: case 0xd1: case 0xe1: case 0xf1:
+			POP(getRegPair((op & 0x30) >> 4));
+			break;
+
+		case 0xc2: JNZ(nextTwo); break;
+		case 0xd2: JNC(nextTwo); break;
+		case 0xe2: JPO(nextTwo); break;
+		case 0xf2: JP(nextTwo); break;
+
+		case 0xc3: case 0xcb: JMP(nextTwo); break;
+		case 0xd3: OUT(); break;
+		case 0xe3: XTHL(); break;
+		case 0xf3: DI(); break;
+
+		case 0xc4: CNZ(nextTwo); break;
+		case 0xd4: CNC(nextTwo); break;
+		case 0xe4: CPO(nextTwo); break;
+		case 0xf4: CP(nextTwo); break;
+
+		case 0xc5: case 0xd5: case 0xe5: case 0xf5:
+			PUSH(getRegPair((op & 0x30) >> 4));
+			break;
+
+		case 0xc6: ADI(next); break;
+		case 0xd6: SUI(next); break;
+		case 0xe6: ANI(next); break;
+		case 0xf6: ORI(next); break;
+
+		case 0xc7: case 0xcf:
+		case 0xd7: case 0xdf:
+		case 0xe7: case 0xef:
+		case 0xf7: case 0xff: // RST
+			RST((op & 0x38) >> 3);
+			break;
+
+		case 0xc8: RZ(); break;
+		case 0xd8: RC(); break;
+		case 0xe8: RPE(); break;
+		case 0xf8: RM(); break;
+
+		case 0xc9: case 0xd9: RET(); break;
+		case 0xe9: PCHL(); break;
+		case 0xf9: SPHL(); break;
+
+		case 0xca: JZ(nextTwo); break;
+		case 0xda: JC(nextTwo); break;
+		case 0xea: JPE(nextTwo); break;
+		case 0xfa: JM(nextTwo); break;
+
+		case 0xdb: IN(); break;
+		case 0xeb: XCHG(); break;
+		case 0xfb: EI(); break;
+
+		case 0xcc: CZ(nextTwo); break;
+		case 0xdc: CC(nextTwo); break;
+		case 0xec: CPE(nextTwo); break;
+		case 0xfc: CM(nextTwo); break;
+
+		case 0xcd: case 0xdd: case 0xed: case 0xfd: CALL(nextTwo); break;
+
+		case 0xce: ACI(next); break;
+		case 0xde: SBI(next); break;
+		case 0xee: XRI(next); break;
+		case 0xfe: CPI(next); break;
+
+		default:
+			fprintf(stderr, "Invalid op code: 0x%x", op);
+			break;
+	}
 }
 
 void Intel8080::RST(int val) {
@@ -75,7 +306,7 @@ void Intel8080::MVI_m(uint8 data) {
 	memory[memIndex] = data;
 	cycles += 7;
 }
-void Intel8080::MVI_r(uint8 from, uint16 data) {
+void Intel8080::MVI_r(uint8 from, uint8 data) {
 	reg[from] = data;
 	cycles += 7;
 }
@@ -653,4 +884,17 @@ uint16 Intel8080::getHL() {
 }
 void Intel8080::resetFlags() {
 	status = 0xa;
+}
+uint8 Intel8080::getReg(uint8 val) {
+	return val == 0x0 ? B :
+		   val == 0x1 ? C :
+		   val == 0x2 ? D :
+		   val == 0x3 ? E :
+		   val == 0x4 ? H :
+		   val == 0x5 ? L : A;
+}
+uint8 Intel8080::getRegPair(uint8 val) {
+	return val == 0x0 ? B :
+		   val == 0x1 ? D :
+		   val == 0x2 ? H : A;
 }

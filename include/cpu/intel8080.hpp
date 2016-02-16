@@ -15,7 +15,7 @@ public:
 
 private:
 #endif
-
+	bool terminate;
 	bool halt;
 	bool inte;
 	uint8 reg[8];
@@ -38,7 +38,7 @@ private:
 	void MOV_r_m(uint8 from);
 	void MOV_m_r(uint8 to);
 	void MVI_m(uint8 data);
-	void MVI_r(uint8 from, uint16 data);
+	void MVI_r(uint8 from, uint8 data);
 	void LXI_r(uint8 pair, uint16 data);
 	void STAX(uint8 pair);
 	void LDAX(uint8 pair);
@@ -195,14 +195,17 @@ private:
 	int getFlag(int);
 	uint16 getHL();
 	void resetFlags();
+	uint8 getReg(uint8 val);
+	uint8 getRegPair(uint8 val);
 
 #ifndef TESTING
 public:
 #endif
 
-	// NOTE: sp starts 1 higher than memory bc nothing is in the stack
+	// NOTE: sp starts 1 higher than memory (i.e. 0) bc nothing is in the stack
 
-	Intel8080() : inte(false), pc(0), sp(0xffff + 1) {
+	Intel8080() : inte(false), pc(0), sp(0), halt(false),
+	 	terminate(false){
 		for (int i = 0; i <= 0xffff; i++) {
 			if (i < 8) {
 				reg[i] = 0;
