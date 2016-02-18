@@ -22,7 +22,7 @@ private:
 	uint16 pc;
 	uint16 sp;
 	uint32 cycles;
-	// uint8 io[0xff + 1];
+	uint8 inputs[0xff + 1];
 
 	uint8 memory[0xffff + 1];
 	uint8 status;
@@ -205,7 +205,7 @@ public:
 	// NOTE: sp starts 1 higher than memory (i.e. 0) bc nothing is in the stack
 
 	Intel8080() : inte(false), pc(0), sp(0), halt(false),
-	 	terminate(false){
+	 	terminate(false), status(0x42) {
 		for (int i = 0; i <= 0xffff; i++) {
 			if (i < 8) {
 				reg[i] = 0;

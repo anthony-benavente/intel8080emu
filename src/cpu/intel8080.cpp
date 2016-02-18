@@ -2,6 +2,7 @@
 
 #include <iostream>
 using std::cout;
+using std::cin;
 using std::endl;
 
 #define B 0
@@ -34,10 +35,8 @@ void Intel8080::loadProgram(program_t *program) {
 }
 
 void Intel8080::emulateCycle() {
-	while (!halt && !terminate) {
-		uint8 op = getNextOp();
-		decode(op);
-	}
+	uint8 op = getNextOp();
+    decode(op);
 }
 
 unsigned char Intel8080::getPixel(int x, int y) {
@@ -45,25 +44,26 @@ unsigned char Intel8080::getPixel(int x, int y) {
 }
 
 uint8 Intel8080::getNextOp() {
+	printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
 	return memory[pc++];
 }
 
 void Intel8080::decode(uint8 op) {
-	uint8 next = memory[pc + 1];
-	uint16 nextTwo = (next << 8) | memory[pc + 2];
+	uint8 next = memory[pc];
+	uint16 nextTwo = (next << 8) | memory[pc + 1];
 	switch (op) {
 		case 0x00: case 0x10: case 0x20: case 0x30:
 		case 0x08: case 0x18: case 0x28: case 0x38: NOP(); break;
 
-		case 0x01: LXI_r(B, nextTwo); break;
-		case 0x11: LXI_r(D, nextTwo); break;
-		case 0x21: LXI_r(H, nextTwo); break;
-		case 0x31: LXI_SP(nextTwo); break;
+		case 0x01: pc++; pc++; LXI_r(B, nextTwo); break;
+		case 0x11: pc++; pc++; LXI_r(D, nextTwo); break;
+		case 0x21: pc++; pc++; LXI_r(H, nextTwo); break;
+		case 0x31: pc++; pc++; LXI_SP(nextTwo); break;
 
 		case 0x02: STAX(B); break;
 		case 0x12: STAX(D); break;
-		case 0x22: SHLD(nextTwo); break;
-		case 0x32: STA(nextTwo); break;
+		case 0x22: pc++; pc++; SHLD(nextTwo); break;
+		case 0x32: pc++; pc++; STA(nextTwo); break;
 
 		case 0x03: INX_r(B); break;
 		case 0x13: INX_r(D); break;
@@ -86,9 +86,10 @@ void Intel8080::decode(uint8 op) {
 
 		case 0x06: case 0x16: case 0x26: case 0xe:
 		case 0x1e: case 0x2e: case 0x3e: // MVI_r
+			pc++;
 			MVI_r(getReg((op & 0x38) >> 3), next);
 			break;
-		case 0x36: MVI_m(next); break;
+		case 0x36: pc++; MVI_m(next); break;
 
 		case 0x07: RLC(); break;
 		case 0x17: RAL(); break;
@@ -102,8 +103,8 @@ void Intel8080::decode(uint8 op) {
 
 		case 0x0a: LDAX(B); break;
 		case 0x1a: LDAX(H);	break;
-		case 0x2a: LHLD(nextTwo); break;
-		case 0x3a: LDA(nextTwo); break;
+		case 0x2a: pc++; pc++; LHLD(nextTwo); break;
+		case 0x3a: pc++; pc++; LDA(nextTwo); break;
 
 		case 0x0b: case 0x1b: case 0x2b: // DCX_r
 			DCX_r(getRegPair((op & 30) >> 4));
@@ -213,29 +214,29 @@ void Intel8080::decode(uint8 op) {
 			POP(getRegPair((op & 0x30) >> 4));
 			break;
 
-		case 0xc2: JNZ(nextTwo); break;
-		case 0xd2: JNC(nextTwo); break;
-		case 0xe2: JPO(nextTwo); break;
-		case 0xf2: JP(nextTwo); break;
+		case 0xc2: pc++; pc++; JNZ(nextTwo); break;
+		case 0xd2: pc++; pc++; JNC(nextTwo); break;
+		case 0xe2: pc++; pc++; JPO(nextTwo); break;
+		case 0xf2: pc++; pc++; JP(nextTwo); break;
 
-		case 0xc3: case 0xcb: JMP(nextTwo); break;
-		case 0xd3: OUT(); break;
+		case 0xc3: case 0xcb: pc++; pc++; JMP(nextTwo); break;
+		case 0xd3: pc++; OUT(next); break;
 		case 0xe3: XTHL(); break;
 		case 0xf3: DI(); break;
 
-		case 0xc4: CNZ(nextTwo); break;
-		case 0xd4: CNC(nextTwo); break;
-		case 0xe4: CPO(nextTwo); break;
-		case 0xf4: CP(nextTwo); break;
+		case 0xc4: pc++; pc++; CNZ(nextTwo); break;
+		case 0xd4: pc++; pc++; CNC(nextTwo); break;
+		case 0xe4: pc++; pc++; CPO(nextTwo); break;
+		case 0xf4: pc++; pc++; CP(nextTwo); break;
 
 		case 0xc5: case 0xd5: case 0xe5: case 0xf5:
 			PUSH(getRegPair((op & 0x30) >> 4));
 			break;
 
-		case 0xc6: ADI(next); break;
-		case 0xd6: SUI(next); break;
-		case 0xe6: ANI(next); break;
-		case 0xf6: ORI(next); break;
+		case 0xc6: pc++; ADI(next); break;
+		case 0xd6: pc++; SUI(next); break;
+		case 0xe6: pc++; ANI(next); break;
+		case 0xf6: pc++; ORI(next); break;
 
 		case 0xc7: case 0xcf:
 		case 0xd7: case 0xdf:
@@ -253,26 +254,26 @@ void Intel8080::decode(uint8 op) {
 		case 0xe9: PCHL(); break;
 		case 0xf9: SPHL(); break;
 
-		case 0xca: JZ(nextTwo); break;
-		case 0xda: JC(nextTwo); break;
-		case 0xea: JPE(nextTwo); break;
-		case 0xfa: JM(nextTwo); break;
+		case 0xca: pc++; pc++; JZ(nextTwo); break;
+		case 0xda: pc++; pc++; JC(nextTwo); break;
+		case 0xea: pc++; pc++; JPE(nextTwo); break;
+		case 0xfa: pc++; pc++; JM(nextTwo); break;
 
-		case 0xdb: IN(); break;
+		case 0xdb: pc++; IN(next); break;
 		case 0xeb: XCHG(); break;
 		case 0xfb: EI(); break;
 
-		case 0xcc: CZ(nextTwo); break;
-		case 0xdc: CC(nextTwo); break;
-		case 0xec: CPE(nextTwo); break;
-		case 0xfc: CM(nextTwo); break;
+		case 0xcc: pc++; pc++; CZ(nextTwo); break;
+		case 0xdc: pc++; pc++; CC(nextTwo); break;
+		case 0xec: pc++; pc++; CPE(nextTwo); break;
+		case 0xfc: pc++; pc++; CM(nextTwo); break;
 
-		case 0xcd: case 0xdd: case 0xed: case 0xfd: CALL(nextTwo); break;
+		case 0xcd: case 0xdd: case 0xed: case 0xfd: pc++; pc++; CALL(nextTwo); break;
 
-		case 0xce: ACI(next); break;
-		case 0xde: SBI(next); break;
-		case 0xee: XRI(next); break;
-		case 0xfe: CPI(next); break;
+		case 0xce: pc++; ACI(next); break;
+		case 0xde: pc++; SBI(next); break;
+		case 0xee: pc++; XRI(next); break;
+		case 0xfe: pc++; CPI(next); break;
 
 		default:
 			fprintf(stderr, "Invalid op code: 0x%x", op);
@@ -735,7 +736,7 @@ void Intel8080::performOR(uint8 data) {
 	setFlag(STATUS_PARITY, (reg[A] & 0x1) == 0);
 }
 void Intel8080::performCMP(uint8 data) {
-	resetFlags();
+	//resetFlags();
 	setFlag(STATUS_CARRY, reg[A] - data < 0);
 	setFlag(STATUS_AUX_CARRY, (uint8) (reg[A] - data) > 0xf); // TODO: Possible bug here
 	setFlag(STATUS_ZERO, ((reg[A] - data) & 0xff) == 0);
@@ -850,9 +851,11 @@ void Intel8080::DAA() {
 }
 
 // Input/Output Instructions
-void Intel8080::IN() {
+void Intel8080::IN(uint8 data) {
+    reg[A] = inputs[data];
 }
 void Intel8080::OUT() {
+    inputs[data] = reg[A];
 }
 
 // Control Instructions
@@ -883,7 +886,7 @@ uint16 Intel8080::getHL() {
 	return (reg[H] << 8) | reg[L];
 }
 void Intel8080::resetFlags() {
-	status = 0xa;
+	status = 0x2;
 }
 uint8 Intel8080::getReg(uint8 val) {
 	return val == 0x0 ? B :
