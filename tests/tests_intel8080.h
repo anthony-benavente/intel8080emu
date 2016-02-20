@@ -233,7 +233,8 @@ public:
 
 		// Test pushing PSW to stack (A, status)
 		cpu.PUSH(A);
-		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], 0x0);
+		uint8_t statusByte = cpu.status;
+		TS_ASSERT_EQUALS(cpu.memory[cpu.sp], statusByte);
 		TS_ASSERT_EQUALS(cpu.memory[cpu.sp + 1], 0xa);
 		TS_ASSERT_EQUALS(cpu.sp, tmpSP - 6);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 33);
@@ -412,6 +413,9 @@ public:
 	}
 
 	void test_JZ() {
+		// Set 0 flag to 0 so nothing works
+		cpu.setFlag(STATUS_ZERO, 0);
+
 		cpu.JZ(0x00ce);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 10);
@@ -837,6 +841,8 @@ public:
 	}
 
 	void test_RZ() {
+		cpu.setFlag(STATUS_ZERO, 0);
+
 		cpu.RZ();
 		TS_ASSERT_EQUALS(cpu.sp, 0xfffc);
 		TS_ASSERT_EQUALS(cpu.pc, 0x0000);
