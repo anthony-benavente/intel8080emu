@@ -854,7 +854,7 @@ void Intel8080::DAA() {
 void Intel8080::IN(uint8 data) {
     reg[A] = inputs[data];
 }
-void Intel8080::OUT() {
+void Intel8080::OUT(uint8 data) {
     inputs[data] = reg[A];
 }
 

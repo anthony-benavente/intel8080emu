@@ -180,8 +180,8 @@ private:
 	/************************************
 	INPUT/OUTPUT
 	*************************************/
-	void IN();
-	void OUT();
+	void IN(uint8 data);
+	void OUT(uint8 data);
 
 	/************************************
 	CONTROL
