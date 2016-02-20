@@ -1,12 +1,8 @@
 #ifndef INTEL8080_H
 #define INTEL8080_H
 
+#include <stdint.h>
 #include "cpu/cpu.hpp"
-// #include <stack>
-
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
 
 class Intel8080 : public Cpu {
 #ifdef TESTING
@@ -18,73 +14,73 @@ private:
 	bool terminate;
 	bool halt;
 	bool inte;
-	uint8 reg[8];
-	uint16 pc;
-	uint16 sp;
-	uint32 cycles;
-	uint8 inputs[0xff + 1];
+	uint8_t reg[8];
+	uint16_t pc;
+	uint16_t sp;
+	uint32_t cycles;
+	uint8_t inputs[0xff + 1];
 
-	uint8 memory[0xffff + 1];
-	uint8 status;
+	uint8_t memory[0xffff + 1];
+	uint8_t status;
 
-	uint8 getNextOp();
-	void decode(uint8 op);
-	uint16 getPc() { return pc; }
+	uint8_t getNextOp();
+	void decode(uint8_t op);
+	uint16_t getPc() { return pc; }
 
 	/************************************
 	MOVE STORE LOAD
 	*************************************/
-	void MOV_r(uint8 from, uint8 to);
-	void MOV_r_m(uint8 from);
-	void MOV_m_r(uint8 to);
-	void MVI_m(uint8 data);
-	void MVI_r(uint8 from, uint8 data);
-	void LXI_r(uint8 pair, uint16 data);
-	void STAX(uint8 pair);
-	void LDAX(uint8 pair);
-	void STA(uint16 data);
-	void LDA(uint16 data);
-	void SHLD(uint16 data);
-	void LHLD(uint16 data);
+	void MOV_r(uint8_t from, uint8_t to);
+	void MOV_r_m(uint8_t from);
+	void MOV_m_r(uint8_t to);
+	void MVI_m(uint8_t data);
+	void MVI_r(uint8_t from, uint8_t data);
+	void LXI_r(uint8_t pair, uint16_t data);
+	void STAX(uint8_t pair);
+	void LDAX(uint8_t pair);
+	void STA(uint16_t data);
+	void LDA(uint16_t data);
+	void SHLD(uint16_t data);
+	void LHLD(uint16_t data);
 	void XCHG();
 
 	/************************************
 	STACK
 	*************************************/
-	void PUSH(uint8 pair);
-	void POP(uint8 pair);
+	void PUSH(uint8_t pair);
+	void POP(uint8_t pair);
 	void XTHL();
 	void SPHL();
-	void LXI_SP(uint16 data);
+	void LXI_SP(uint16_t data);
 	void INX_SP();
 	void DCX_SP();
 
 	/************************************
 	JUMP
 	*************************************/
-	void JMP(uint16 data);
-	void JC(uint16 data);
-	void JNC(uint16 data);
-	void JZ(uint16 data);
-	void JNZ(uint16 data);
-	void JP(uint16 data);
-	void JM(uint16 data);
-	void JPE(uint16 data);
-	void JPO(uint16 data);
+	void JMP(uint16_t data);
+	void JC(uint16_t data);
+	void JNC(uint16_t data);
+	void JZ(uint16_t data);
+	void JNZ(uint16_t data);
+	void JP(uint16_t data);
+	void JM(uint16_t data);
+	void JPE(uint16_t data);
+	void JPO(uint16_t data);
 	void PCHL();
 
 	/************************************
 	CALL
 	*************************************/
-	void CALL(uint16 data);
-	void CC(uint16 data);
-	void CNC(uint16 data);
-	void CZ(uint16 data);
-	void CNZ(uint16 data);
-	void CP(uint16 data);
-	void CM(uint16 data);
-	void CPE(uint16 data);
-	void CPO(uint16 data);
+	void CALL(uint16_t data);
+	void CC(uint16_t data);
+	void CNC(uint16_t data);
+	void CZ(uint16_t data);
+	void CNZ(uint16_t data);
+	void CP(uint16_t data);
+	void CM(uint16_t data);
+	void CPE(uint16_t data);
+	void CPO(uint16_t data);
 
 	/************************************
 	RETURN
@@ -107,57 +103,57 @@ private:
 	/************************************
 	INCREMENT AND DECREMENT
 	*************************************/
-	void INR_r(uint8 reg);
+	void INR_r(uint8_t reg);
 	void INR_m();
-	void DCR_r(uint8 reg);
+	void DCR_r(uint8_t reg);
 	void DCR_m();
-	void INX_r(uint8 pair);
-	void DCX_r(uint8 pair);
+	void INX_r(uint8_t pair);
+	void DCX_r(uint8_t pair);
 
 	/************************************
 	ADD
 	*************************************/
-	void performAdd(uint8 data);
-	void ADD_r(uint8 reg);
+	void performAdd(uint8_t data);
+	void ADD_r(uint8_t reg);
 	void ADD_m();
-	void ADC_r(uint8 reg);
+	void ADC_r(uint8_t reg);
 	void ADC_m();
-	void ADI(uint8 data);
-	void ACI(uint8 data);
-	void performDAD(uint16 data);
-	void DAD_r(uint8 pair);
+	void ADI(uint8_t data);
+	void ACI(uint8_t data);
+	void performDAD(uint16_t data);
+	void DAD_r(uint8_t pair);
 	void DAD_SP();
 
 	/************************************
 	SUBTRACT
 	*************************************/
-	void performSub(uint8 data);
-	void SUB_r(uint8 reg);
+	void performSub(uint8_t data);
+	void SUB_r(uint8_t reg);
 	void SUB_m();
-	void SBB_r(uint8 reg);
+	void SBB_r(uint8_t reg);
 	void SBB_m();
-	void SUI(uint8 data);
-	void SBI(uint8 data);
+	void SUI(uint8_t data);
+	void SBI(uint8_t data);
 
 	/************************************
 	LOGICAL
 	*************************************/
-	void performAND(uint8 data);
-	void performXOR(uint8 data);
-	void performOR(uint8 data);
-	void performCMP(uint8 data);
-	void ANA_r(uint8 reg);
+	void performAND(uint8_t data);
+	void performXOR(uint8_t data);
+	void performOR(uint8_t data);
+	void performCMP(uint8_t data);
+	void ANA_r(uint8_t reg);
 	void ANA_m();
-	void XRA_r(uint8 reg);
+	void XRA_r(uint8_t reg);
 	void XRA_m();
-	void ORA_r(uint8 reg);
+	void ORA_r(uint8_t reg);
 	void ORA_m();
-	void CMP_r(uint8 reg);
+	void CMP_r(uint8_t reg);
 	void CMP_m();
-	void ANI(uint8 data);
-	void XRI(uint8 data);
-	void ORI(uint8 data);
-	void CPI(uint8 data);
+	void ANI(uint8_t data);
+	void XRI(uint8_t data);
+	void ORI(uint8_t data);
+	void CPI(uint8_t data);
 
 
 	/************************************
@@ -180,8 +176,8 @@ private:
 	/************************************
 	INPUT/OUTPUT
 	*************************************/
-	void IN(uint8 data);
-	void OUT(uint8 data);
+	void IN(uint8_t data);
+	void OUT(uint8_t data);
 
 	/************************************
 	CONTROL
@@ -193,10 +189,10 @@ private:
 
 	void setFlag(int, int);
 	int getFlag(int);
-	uint16 getHL();
+	uint16_t getHL();
 	void resetFlags();
-	uint8 getReg(uint8 val);
-	uint8 getRegPair(uint8 val);
+	uint8_t getReg(uint8_t val);
+	uint8_t getRegPair(uint8_t val);
 
 #ifndef TESTING
 public:

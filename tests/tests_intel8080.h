@@ -21,7 +21,7 @@
 class MemoryTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -199,7 +199,7 @@ public:
 class StackTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -215,7 +215,7 @@ public:
 	}
 
 	void test_PUSH() {
-		uint32 tmpSP = 0xffff + 1;
+		uint32_t tmpSP = 0xffff + 1;
 
 		// Test pushing B,C to stack
 		cpu.PUSH(B);
@@ -240,7 +240,7 @@ public:
 	}
 
 	void test_POP() {
-		uint16 tmpSP = cpu.sp;
+		uint16_t tmpSP = cpu.sp;
 		cpu.memory[--cpu.sp] = 0xde;
 		cpu.memory[--cpu.sp] = 0xad;
 		cpu.memory[--cpu.sp] = 0xba;
@@ -298,7 +298,7 @@ public:
 	}
 
 	void test_INX_SP() {
-		uint16 tmpSP = cpu.sp;
+		uint16_t tmpSP = cpu.sp;
 
 		// Test increase value of SP by 1
 		cpu.INX_SP();
@@ -309,7 +309,7 @@ public:
 	}
 
 	void test_DCX_SP() {
-		uint16 tmpSP = cpu.sp;
+		uint16_t tmpSP = cpu.sp;
 
 		// Test increase value of SP by 1
 		cpu.DCX_SP();
@@ -323,7 +323,7 @@ public:
 class JumpTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -588,8 +588,8 @@ public:
 class CallTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
-	uint16 spTmp;
+	uint32_t cyclesTmp;
+	uint16_t spTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -764,8 +764,8 @@ public:
 class ReturnTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
-	uint16 spTmp;
+	uint32_t cyclesTmp;
+	uint16_t spTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -951,7 +951,7 @@ public:
 class IncrementDecrementTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -1170,7 +1170,7 @@ public:
 class AddTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -1461,7 +1461,7 @@ public:
 class SubtractTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -1625,7 +1625,7 @@ public:
 class LogicalTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -1837,7 +1837,7 @@ public:
 class RotateTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -1928,7 +1928,7 @@ public:
 class SpecialsTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -2015,7 +2015,7 @@ public:
 class InputOuputTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -2040,7 +2040,7 @@ public:
 class ControlTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -2070,7 +2070,7 @@ public:
 		TS_ASSERT_EQUALS(cpu.cycles, cyclesTmp + 4);
 	}
 	void test_HLT() {
-		uint16 tmpPC = cpu.pc;
+		uint16_t tmpPC = cpu.pc;
 		cpu.HLT();
 		TS_ASSERT(cpu.halt);
 	}
@@ -2079,7 +2079,7 @@ public:
 class ResetTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
@@ -2108,7 +2108,7 @@ public:
 class GeneralTests : public CxxTest::TestSuite {
 public:
 	Intel8080 cpu;
-	uint32 cyclesTmp;
+	uint32_t cyclesTmp;
 
 	void setUp(void) {
 		// cpu = Intel8080();
