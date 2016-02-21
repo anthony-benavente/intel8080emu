@@ -1,3 +1,6 @@
+# Text editor files
+.vscode/
+
 # Compiled Object files
 *.slo
 *.lo
