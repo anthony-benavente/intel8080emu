@@ -855,7 +855,7 @@ void Intel8080::IN(uint8_t data) {
     reg[A] = inputs[data];
 }
 void Intel8080::OUT(uint8_t data) {
-    inputs[data] = reg[A];
+    outputs[data] = reg[A];
 }
 
 // Control Instructions
