@@ -1,6 +1,7 @@
 #include "cpu/intel8080.hpp"
 
 #include <iostream>
+#include <ctime>
 using std::cout;
 using std::cin;
 using std::endl;
@@ -37,6 +38,13 @@ void Intel8080::loadProgram(program_t *program) {
 void Intel8080::emulateCycle() {
 	uint8_t op = getNextOp();
     decode(op);
+    
+    if (time(NULL) - lastInterrupt > 1.0 / 60) {
+        if (inte) {
+            handleInterrupt(interruptPin);
+            lastInterrupt = time(NULL);
+        }
+    }
 }
 
 unsigned char Intel8080::getPixel(int x, int y) {
@@ -900,4 +908,9 @@ uint8_t Intel8080::getRegPair(uint8_t val) {
 	return val == 0x0 ? B :
 		   val == 0x1 ? D :
 		   val == 0x2 ? H : A;
+}
+void Intel8080::handleInterrupt(uint8_t op) {
+    memory[--sp] = pc;
+    decode(op);
+    pc = memory[sp++];
 }

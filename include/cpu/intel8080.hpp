@@ -11,9 +11,11 @@ public:
 
 private:
 #endif
+    int lastInterrupt;
 	bool terminate;
 	bool halt;
 	bool inte;
+    uint8_t interruptPin;
 	uint8_t reg[8];
 	uint16_t pc;
 	uint16_t sp;
@@ -23,10 +25,6 @@ private:
 
 	uint8_t memory[0xffff + 1];
 	uint8_t status;
-
-	uint8_t getNextOp();
-	void decode(uint8_t op);
-	uint16_t getPc() { return pc; }
 
 	/************************************
 	MOVE STORE LOAD
@@ -188,12 +186,18 @@ private:
 	void NOP();
 	void HLT();
 
+	uint8_t getNextOp();
+	void decode(uint8_t op);
+	uint16_t getPc() { return pc; }
+
 	void setFlag(int, int);
 	int getFlag(int);
 	uint16_t getHL();
 	void resetFlags();
 	uint8_t getReg(uint8_t val);
 	uint8_t getRegPair(uint8_t val);
+    
+    void handleInterrupt(uint8_t op);
 
 #ifndef TESTING
 public:
