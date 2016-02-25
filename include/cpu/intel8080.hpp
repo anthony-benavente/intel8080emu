@@ -19,6 +19,7 @@ private:
 	uint16_t sp;
 	uint32_t cycles;
 	uint8_t inputs[0xff + 1];
+    uint8_t outputs[0xff + 1];
 
 	uint8_t memory[0xffff + 1];
 	uint8_t status;
@@ -215,6 +216,10 @@ public:
 	void emulateCycle() override;
 
 	unsigned char getPixel(int x, int y) override;
+    
+    void writeIn(uint8_t port, uint8_t data) override { inputs[port] = data; }
+    
+    uint8_t getOut(uint8_t port) override { return outputs[port]; }
 
 };
 
