@@ -6,8 +6,8 @@
 #include "machine/machine.hpp"
 #include "program/program.hpp"
 
-#define SCREEN_WIDTH 64
-#define SCREEN_HEIGHT 32
+#define SCREEN_WIDTH 256
+#define SCREEN_HEIGHT 244
 #define SCALE 10
 
 Intel8080 cpu;
