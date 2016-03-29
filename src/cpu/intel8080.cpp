@@ -52,7 +52,7 @@ unsigned char Intel8080::getPixel(int x, int y) {
 }
 
 uint8_t Intel8080::getNextOp() {
-	printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
+	// printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
 	return memory[pc++];
 }
 
