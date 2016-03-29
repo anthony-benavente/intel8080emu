@@ -2,11 +2,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
 
 program_t *getProgram(const char *path) {
 	FILE *fp = fopen(path, "rb");
 	if (!fp) {
-		fputs("Err reading file\n", stderr);
+		perror("Err reading file");
 		exit(1);
 	}
 
@@ -20,7 +21,7 @@ program_t *getProgram(const char *path) {
 	result->data = (unsigned char *) malloc(sizeof(char) * size);
 	result->size = size;
 	if (result->size != fread(result->data, 1, size, fp)) {
-		fputs("Err copying file to buffer\n", stderr);
+		perror("Err copying file to buffer");
 		exit(2);
 	}
 	fclose(fp);
