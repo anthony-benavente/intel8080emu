@@ -219,7 +219,7 @@ public:
 
 	void emulateCycle() override;
 
-	unsigned char getPixel(int x, int y) override;
+	unsigned int getPixel(int x, int y) override;
     
     void writeIn(uint8_t port, uint8_t data) override { inputs[port] = data; }
     

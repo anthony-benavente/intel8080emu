@@ -9,7 +9,7 @@ public:
 	Cpu() : drawFlag(false) {}
 
 	virtual void emulateCycle() = 0;
-	virtual unsigned char getPixel(int x, int y) = 0;
+	virtual unsigned int getPixel(int x, int y) = 0;
 	virtual void loadProgram(program_t *program) = 0;
     
     virtual void writeIn(uint8_t port, uint8_t data) = 0;
