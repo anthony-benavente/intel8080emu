@@ -47,8 +47,9 @@ void Intel8080::emulateCycle() {
     }
 }
 
-unsigned char Intel8080::getPixel(int x, int y) {
-	return 0;
+unsigned int Intel8080::getPixel(int x, int y) {
+    int byte = memory[2400 + (y * 256 + (x / 8))];
+	return (byte & (1 << x)) > 0 ? 0xffffff : 0x000000;
 }
 
 uint8_t Intel8080::getNextOp() {
