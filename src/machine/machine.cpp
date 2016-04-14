@@ -58,6 +58,12 @@ void Machine::start() {
                     case SDLK_d:
                         keys["d"] = e.type == SDL_KEYDOWN;
                         break;
+                    case SDLK_h:
+                        keys["g"] = e.type == SDL_KEYDOWN;
+                        break;
+                    case SDLK_g:
+                        keys["h"] = e.type == SDL_KEYDOWN;
+                        break;
                     case SDLK_UP:
                         keys["up"] = e.type == SDL_KEYDOWN;
                         break;
