@@ -15,6 +15,8 @@ using std::endl;
 #define M 6
 #define A 7
 
+#define VERBOSE
+
 #define STATUS_CARRY 		0x01
 #define STATUS_PARITY 		0x04
 #define STATUS_AUX_CARRY 	0x10
@@ -22,6 +24,32 @@ using std::endl;
 #define STATUS_ZERO 		0x40
 
 void swap(uint8_t *, int, int);
+
+void logstr(const char *str) {
+#ifdef VERBOSE
+    printf("%s", str);
+#endif
+}
+
+void Intel8080::printFlags() {
+    printf("%c%c%c%c%c", 
+        getFlag(STATUS_SIGN) ? 'S' : ' ', 
+        getFlag(STATUS_AUX_CARRY) ? 'A' : ' ',
+        getFlag(STATUS_PARITY) ? 'P' : ' ',
+        getFlag(STATUS_CARRY) ? 'C' : ' ',
+        getFlag(STATUS_ZERO) ? 'Z' : ' ');
+}
+
+void Intel8080::print_status() {
+    printf("Registers:\n");
+    printf("A: %2x | F: %2x | B: %2x | C: %2x | D: %2x | E: %2x | H: %2x | L: %2x\n",
+        reg[A], status, reg[B], reg[C], reg[D], reg[E], reg[H], reg[L]);
+    printf("PC: %x\n", pc);
+    printf("SP: %x\n", sp);
+    printf("FLAGS: ");
+    printFlags();
+    printf("\nCYCLES: %d\n", cycles);
+}
 
 void swap(uint8_t *arr, int a, int b) {
 	uint8_t tmp = *(arr + a);
@@ -36,6 +64,8 @@ void Intel8080::loadProgram(program_t *program) {
 }
 
 void Intel8080::emulateCycle() {
+    print_status();
+    
 	uint8_t op = getNextOp();
     decode(op);
     
@@ -48,12 +78,12 @@ void Intel8080::emulateCycle() {
 }
 
 unsigned int Intel8080::getPixel(int x, int y) {
-    int byte = memory[2400 + (y * 256 + (x / 8))];
-	return (byte & (1 << x)) > 0 ? 0xffffff : 0x000000;
+    int byte = memory[2400 + (y * 224 + (x / 8))];
+	return (byte & (1 << (8 - x))) > 0 ? 0xffffff : 0x000000;
 }
 
 uint8_t Intel8080::getNextOp() {
-	// printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
+	printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
 	return memory[pc++];
 }
 
@@ -111,7 +141,7 @@ void Intel8080::decode(uint8_t op) {
 		case 0x39: DAD_SP(); break;
 
 		case 0x0a: LDAX(B); break;
-		case 0x1a: LDAX(H);	break;
+		case 0x1a: LDAX(D);	break;
 		case 0x2a: pc++; pc++; LHLD(nextTwo); break;
 		case 0x3a: pc++; pc++; LDA(nextTwo); break;
 
@@ -139,15 +169,15 @@ void Intel8080::decode(uint8_t op) {
 		case 0x6c: case 0x6d: case 0x6f:
 		case 0x78: case 0x79: case 0x7a: case 0x7b:
 		case 0x7c: case 0x7d: case 0x7f: // MOV_r_r
-			MOV_r(getReg((op & 0x38) >> 3), getReg(op & 0x7));
+			MOV_r(getReg(op & 0x7), getReg((op & 0x38) >> 3));
 			break;
 		case 0x46: case 0x56: case 0x66: case 0x4e:
-		case 0x5e: case 0x6e: case 0x7e: // MOV_r_m
-			MOV_r_m(getReg((op & 0x38) >> 3));
+		case 0x5e: case 0x6e: case 0x7e: // MOV_m_r
+			MOV_m_r(getReg(op & 0x7));
 			break;
 		case 0x70: case 0x71: case 0x72: case 0x73:
-		case 0x74: case 0x75: case 0x77: // MOV_m_r
-			MOV_m_r(getReg(op & 0x7));
+		case 0x74: case 0x75: case 0x77: // MOV_r_m
+			MOV_r_m(getReg((op & 0x38) >> 3));
 			break;
 
 		case 0x80: case 0x81: case 0x82: case 0x83:
@@ -321,6 +351,7 @@ void Intel8080::MVI_r(uint8_t from, uint8_t data) {
 	cycles += 7;
 }
 void Intel8080::LXI_r(uint8_t pair, uint16_t data) {
+    logstr("Running LXI_r\n");
 	if (pair == B || pair == D || pair == H) {
 		reg[pair] = data & 0xff;
 		reg[pair + 1] = (data >> 8) & 0xff;
@@ -613,10 +644,18 @@ void Intel8080::INR_m() {
 }
 void Intel8080::DCR_r(uint8_t regi) {
 	reg[regi]--;
+    setFlag(STATUS_ZERO, reg[regi] == 0);
+    setFlag(STATUS_SIGN, reg[regi] >= 0x80);
+    setFlag(STATUS_AUX_CARRY, reg[regi] > 0xf);
+    setFlag(STATUS_PARITY, ((reg[regi]) & 1)== 0);
 	cycles += 5;
 }
 void Intel8080::DCR_m() {
 	memory[getHL()]--;
+    setFlag(STATUS_ZERO, memory[getHL()] == 0);
+    setFlag(STATUS_SIGN, memory[getHL()] < 0);
+    setFlag(STATUS_AUX_CARRY, memory[getHL()] > 0xf);
+    setFlag(STATUS_PARITY, (memory[getHL()] & 1)== 0);
 	cycles += 10;
 }
 void Intel8080::INX_r(uint8_t pair) {
@@ -895,7 +934,7 @@ uint16_t Intel8080::getHL() {
 	return (reg[H] << 8) | reg[L];
 }
 void Intel8080::resetFlags() {
-	status = 0x2;
+	status = 0x0;
 }
 uint8_t Intel8080::getReg(uint8_t val) {
 	return val == 0x0 ? B :

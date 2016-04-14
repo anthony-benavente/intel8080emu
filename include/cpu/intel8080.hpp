@@ -198,6 +198,10 @@ private:
 	uint8_t getRegPair(uint8_t val);
     
     void handleInterrupt(uint8_t op);
+    
+    void print_status();
+    
+    void printFlags();
 
 #ifndef TESTING
 public:
@@ -206,7 +210,7 @@ public:
 	// NOTE: sp starts 1 higher than memory (i.e. 0) bc nothing is in the stack
 
 	Intel8080() : inte(false), pc(0), sp(0), halt(false),
-	 	terminate(false), status(0x42) {
+	 	terminate(false), status(0x0) {
 		for (int i = 0; i <= 0xffff; i++) {
 			if (i < 8) {
 				reg[i] = 0;
