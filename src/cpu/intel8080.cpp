@@ -15,7 +15,7 @@ using std::endl;
 #define M 6
 #define A 7
 
-#define VERBOSE
+// #define VERBOSE
 
 #define STATUS_CARRY 		0x01
 #define STATUS_PARITY 		0x04
@@ -32,15 +32,18 @@ void logstr(const char *str) {
 }
 
 void Intel8080::printFlags() {
+#ifdef VERBOSE
     printf("%c%c%c%c%c", 
         getFlag(STATUS_SIGN) ? 'S' : ' ', 
         getFlag(STATUS_AUX_CARRY) ? 'A' : ' ',
         getFlag(STATUS_PARITY) ? 'P' : ' ',
         getFlag(STATUS_CARRY) ? 'C' : ' ',
         getFlag(STATUS_ZERO) ? 'Z' : ' ');
+#endif
 }
 
 void Intel8080::print_status() {
+#ifdef VERBOSE
     printf("Registers:\n");
     printf("A: %2x | F: %2x | B: %2x | C: %2x | D: %2x | E: %2x | H: %2x | L: %2x\n",
         reg[A], status, reg[B], reg[C], reg[D], reg[E], reg[H], reg[L]);
@@ -49,6 +52,7 @@ void Intel8080::print_status() {
     printf("FLAGS: ");
     printFlags();
     printf("\nCYCLES: %d\n", cycles);
+#endif
 }
 
 void swap(uint8_t *arr, int a, int b) {
@@ -63,8 +67,14 @@ void Intel8080::loadProgram(program_t *program) {
 	}
 }
 
+int num_instr = 0;
+
 void Intel8080::emulateCycle() {
-    print_status();
+    // print_status();
+    
+    if (num_instr++ == 37300) {
+        printf("Got to 37300!\n");
+    } 
     
 	uint8_t op = getNextOp();
     decode(op);
@@ -78,12 +88,14 @@ void Intel8080::emulateCycle() {
 }
 
 unsigned int Intel8080::getPixel(int x, int y) {
-    int byte = memory[2400 + (y * 224 + (x / 8))];
-	return (byte & (1 << (8 - x))) > 0 ? 0xffffff : 0x000000;
+    // int byte = memory[0x2400 + ( y * 224 + x)];
+    // return byte;
+    int byte = memory[0x2400 + (y * 224 + (x / 8))];
+	return (byte & (1 << (8 - x))) > 0 ? 0x000000 : 0xffffff;
 }
 
 uint8_t Intel8080::getNextOp() {
-	printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
+	// printf("Returning memory @ %d => 0x%x\n", pc, memory[pc]);
 	return memory[pc++];
 }
 
@@ -351,7 +363,7 @@ void Intel8080::MVI_r(uint8_t from, uint8_t data) {
 	cycles += 7;
 }
 void Intel8080::LXI_r(uint8_t pair, uint16_t data) {
-    logstr("Running LXI_r\n");
+    // logstr("Running LXI_r\n");
 	if (pair == B || pair == D || pair == H) {
 		reg[pair] = data & 0xff;
 		reg[pair + 1] = (data >> 8) & 0xff;
