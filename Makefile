@@ -7,7 +7,7 @@ SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 CFLAGS := -g -Wall -std=c++11
-LIB := -lSDL2
+LIB := -lpthread -lSDL2
 INC := -I include
 DIRECTORIES = $(shell find $(SRCDIR)/* -type d -exec basename {} \;)
 
