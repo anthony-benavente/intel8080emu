@@ -1,8 +1,31 @@
 #include "machine/machine.hpp"
 
+#include <pthread.h>
+#include <semaphore.h>
+#include <cpu/intel8080.hpp>
 #include <SDL2/SDL.h>
 
-void Machine::start() { 
+void *doCpuWork(void *arg) {
+    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+    
+    struct timespec sleeptime;
+    sleeptime.tv_sec = 0;
+    sleeptime.tv_nsec = 10;
+    
+    if (arg != NULL) {
+        Intel8080 *cpu = (Intel8080 *) arg;
+        // Update the CPU
+        while (1) {
+            cpu->emulateCycle();
+            nanosleep(&sleeptime, NULL);
+        }   
+    }
+}
+
+void Machine::start() {    
+    pthread_t cpuThread;
+    pthread_create(&cpuThread, NULL, doCpuWork, (void *) &cpu);
+    
 	screen.initSDL();
 
 	SDL_Event e;
@@ -18,6 +41,7 @@ void Machine::start() {
     keys.insert(std::pair<std::string, bool>("down", false));
     keys.insert(std::pair<std::string, bool>("right", false));
     
+    // SDL happens on a separate thread from the CPU
 	while(!quit) {
 		while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
@@ -51,12 +75,11 @@ void Machine::start() {
 			    quit = e.type == SDL_QUIT;
             }
 		}
-		cycle();
+        cycle();
 	}
 }
 
 void Machine::cycle() {
-	cpu.emulateCycle();
 	screen.update(cpu);
 	screen.render();
 }
