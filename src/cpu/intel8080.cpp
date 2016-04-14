@@ -91,7 +91,7 @@ unsigned int Intel8080::getPixel(int x, int y) {
     // int byte = memory[0x2400 + ( y * 224 + x)];
     // return byte;
     int byte = memory[0x2400 + (y * 224 + (x / 8))];
-	return (byte & (1 << (8 - x))) > 0 ? 0x000000 : 0xffffff;
+	return (byte & (1 << (x % 8))) > 0 ? 0xffffff : 0x000000;
 }
 
 uint8_t Intel8080::getNextOp() {
