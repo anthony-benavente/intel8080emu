@@ -23,4 +23,4 @@ testbuild:
 	$(CC) $(CFLAGS) -I$(TESTS_DIR) -I../include -DTESTING -c -o $(TARGET).o $(TARGET).cpp
 
 testrunner:
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) testrunner.o -lSDL2
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS) testrunner.o -lSDL2 -lpthread
