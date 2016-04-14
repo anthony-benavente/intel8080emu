@@ -31,6 +31,7 @@ void logstr(const char *str) {
 #endif
 }
 
+int num_instr = 0;
 void Intel8080::printFlags() {
 #ifdef VERBOSE
     printf("%c%c%c%c%c", 
@@ -44,6 +45,7 @@ void Intel8080::printFlags() {
 
 void Intel8080::print_status() {
 #ifdef VERBOSE
+    printf("Num: %d\n", num_instr++);
     printf("Registers:\n");
     printf("A: %2x | F: %2x | B: %2x | C: %2x | D: %2x | E: %2x | H: %2x | L: %2x\n",
         reg[A], status, reg[B], reg[C], reg[D], reg[E], reg[H], reg[L]);
@@ -59,7 +61,7 @@ void swap(uint8_t *arr, int a, int b) {
 	uint8_t tmp = *(arr + a);
 	*(arr + a) = *(arr + b);
 	*(arr + b) = tmp;
-}
+} 
 
 void Intel8080::loadProgram(program_t *program) {
 	for (int i = 0; i < program->size; i++) {
@@ -67,14 +69,8 @@ void Intel8080::loadProgram(program_t *program) {
 	}
 }
 
-int num_instr = 0;
-
 void Intel8080::emulateCycle() {
-    // print_status();
-    
-    if (num_instr++ == 37300) {
-        printf("Got to 37300!\n");
-    } 
+    print_status();
     
 	uint8_t op = getNextOp();
     decode(op);
@@ -90,8 +86,9 @@ void Intel8080::emulateCycle() {
 unsigned int Intel8080::getPixel(int x, int y) {
     // int byte = memory[0x2400 + ( y * 224 + x)];
     // return byte;
-    int byte = memory[0x2400 + (y * 224 + (x / 8))];
-	return (byte & (1 << (x % 8))) > 0 ? 0xffffff : 0x000000;
+    int byte = memory[0x2400 + (y * (256 / 8) + (x / 8))];
+    
+    return (byte & (1 << (7 - (x % 8)))) > 0 ? 0xffffff : 0x000000;
 }
 
 uint8_t Intel8080::getNextOp() {

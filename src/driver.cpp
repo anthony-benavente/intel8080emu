@@ -7,9 +7,9 @@
 #include "machine/spaceinvadersam.hpp"
 #include "program/program.hpp"
 
-#define SCREEN_WIDTH 224
-#define SCREEN_HEIGHT 256
-#define SCALE 2
+#define SCREEN_WIDTH 256
+#define SCREEN_HEIGHT 224
+#define SCALE 1
 
 Intel8080 cpu;
 Screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, SCALE);
