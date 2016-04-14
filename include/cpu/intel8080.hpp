@@ -4,30 +4,98 @@
 #include <stdint.h>
 #include "cpu/cpu.hpp"
 
+/**
+ * The Intel8080 class models an actual Intel 8080 microprocessor.
+ *
+ * @author Anthony Benavente
+ * @version 04/13/2016
+ */
 class Intel8080 : public Cpu {
+// The reason for making this public if TESTING is defined is because our
+// tester needs to know about every field and method
 #ifdef TESTING
 public:
 #else
-
 private:
 #endif
     int lastInterrupt;
+
+    /**
+     * Whether the CPU is terminated.
+     */
 	bool terminate;
-	bool halt;
-	bool inte;
+
+    /**
+     * Whether the CPU is halted.
+     */
+    bool halt;
+	
+    /**
+     * Whether interrupts are enabled or disabled
+     */
+    bool inte;
+    
+    /**
+     * The value in the interrupt pin, i.e., the address to jump to during an
+     * interrupt.
+     */
     uint8_t interruptPin;
-	uint8_t reg[8];
-	uint16_t pc;
-	uint16_t sp;
-	uint32_t cycles;
-	uint8_t inputs[0xff + 1];
+	
+    /**
+     * The registers available to the CPU.
+     */
+    uint8_t reg[8];
+	
+    /**
+     * The program counter -- the current instruction in memory
+     */
+    uint16_t pc;
+	
+    /**
+     * The stack pointer -- the top of the stack
+     */
+    uint16_t sp;
+
+    /**
+     * The number of cycles that the CPU has gone through total. It loops back
+     * around at (2^32 - 1) cycles -- a huge number
+     */
+    uint32_t cycles;
+	
+    /**
+     * These are all the input ports available to this CPU.
+     */
+    uint8_t inputs[0xff + 1];
+    
+    /**
+     * All the output ports available to this CPU.
+     */
     uint8_t outputs[0xff + 1];
 
+    /**
+     * The memory for the CPU. I know that this is tightly coupled, but in the
+     * future, this will be pulled out. In fact, let me make a TODO about it.
+     *
+     * TODO: Decouple memory from the CPU.
+     */
 	uint8_t memory[0xffff + 1];
-	uint8_t status;
+	
+    /**
+     * This is the status byte of the CPU. I'm pretty sure this is actually 
+     * implemented in the reg[F] and thus can be deleted. Not sure yet though.
+     *
+     * TODO: Should this be removed?
+     */
+    uint8_t status;
 
+
+    // Yeah for the following instruction methods, I won't be documenting them
+    // in detail since we can find a nice, 90+ page document about it somewhere
+    // online. There's a link in the README if you must know what each method
+    // does.
+    
 	/************************************
-	MOVE STORE LOAD
+	MOVE STORE LOAD Instructions
 	*************************************/
 	void MOV_r(uint8_t from, uint8_t to);
 	void MOV_r_m(uint8_t from);
@@ -186,21 +254,84 @@ private:
 	void NOP();
 	void HLT();
 
+    /**
+     * Gets the next instruction and increments the program counter
+     *
+     * @return the next instruction/opcode
+     */
 	uint8_t getNextOp();
-	void decode(uint8_t op);
+	
+    /**
+     * Decodes and executes the instruction passed in through the parameter.
+     * This moves the pc if the instruction needs following bytes.
+     *
+     * @param op The opcode to decode
+     */
+    void decode(uint8_t op);
+
+    /**
+     * Getter method to get the program counter
+     * 
+     * @return the program counter
+     */
 	uint16_t getPc() { return pc; }
 
+    /**
+     * Sets the specific flag to the boolean value found in the second 
+     * parameter.
+     *
+     * @param int The flag to set (see flag constants in Intel8080.cpp)
+     * @param int If this value evaluates to anything but 0, the flag is enabled
+     */
 	void setFlag(int, int);
-	int getFlag(int);
-	uint16_t getHL();
-	void resetFlags();
-	uint8_t getReg(uint8_t val);
-	uint8_t getRegPair(uint8_t val);
+	
+    /**
+     * Gets whether the specified flag is enabled (1) or not (0).
+     *
+     * @return whether the specified flag is enabled
+     */
+    int getFlag(int);
+
+    /**
+     * Gets the register pair H,L as a 16 bit unsigned integer.
+     *
+     * @return the register pair H,L as a 16 bit unsigned integer
+     */
+    uint16_t getHL();
+	
+    /**
+     * Resets the flags to their default state
+     */
+    void resetFlags();
+	
+    /**
+     * Gets the specified register's value
+     *
+     * @param val The register to get A,F,B,C,D,E,H,L
+     * @return the specified register's value
+     */
+    uint8_t getReg(uint8_t val);
+	
+    /**
+     * Gets the register pair's value as a 16 bit unsigned integer.
+     *
+     * TODO: This should be uint16_t
+     */
+    uint8_t getRegPair(uint8_t val);
     
+    /**
+     * Handles an interrupt.
+     */
     void handleInterrupt(uint8_t op);
     
+    /**
+     * Prints the status of the CPU
+     */
     void print_status();
     
+    /**
+     * Prints the flags all nice like
+     */
     void printFlags();
 
 #ifndef TESTING
