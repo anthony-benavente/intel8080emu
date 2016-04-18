@@ -23,6 +23,9 @@ using std::endl;
 #define STATUS_SIGN 		0x80
 #define STATUS_ZERO 		0x40
 
+#define SCREEN_WIDTH 224
+#define SCREEN_HEIGHT 256
+
 void swap(uint8_t *, int, int);
 
 void logstr(const char *str) {
@@ -87,11 +90,11 @@ unsigned int Intel8080::getPixel(int x, int y) {
     // int byte = memory[0x2400 + ( y * 224 + x)];
     // return byte;
     int tmpX = x;
-    x = y;
-    y = 255 - tmpX;
+    x = SCREEN_HEIGHT - y;
+    y = tmpX;
     
-    int byte = memory[0x2400 + (y * (256 / 8) + (x / 8))];  
-    return (byte & (1 << (7 - (x % 8)))) > 0 ? 0xffffff : 0x000000;
+    int byte = memory[0x2400 + (y * (SCREEN_HEIGHT / 8) + (x / 8))];  
+    return (byte & (1 << ((x % 8)))) > 0 ? 0xffffff : 0x000000;
 }
 
 uint8_t Intel8080::getNextOp() {
