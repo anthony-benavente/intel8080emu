@@ -16,6 +16,8 @@
 #define DIPSWITCH_COIN_INFO 0x80
 
 void SpaceInvadersAM::cycle() {
+    Machine::cycle();
+    
     uint8_t port1 = 0x1;
     uint8_t port2 = 0;
     
@@ -35,6 +37,4 @@ void SpaceInvadersAM::cycle() {
     shreg.srl(cpu.getOut(4));
     shreg.setOffset(cpu.getOut(2));
     cpu.writeIn(3, shreg.getOutput());
-    
-    Machine::cycle();
 }
