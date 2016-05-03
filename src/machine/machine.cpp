@@ -10,7 +10,7 @@ void *doCpuWork(void *arg) {
     
     struct timespec sleeptime;
     sleeptime.tv_sec = 0;
-    sleeptime.tv_nsec = 10;
+    sleeptime.tv_nsec = 8000;
     
     if (arg != NULL) {
         Intel8080 *cpu = (Intel8080 *) arg;
@@ -45,6 +45,7 @@ void Machine::start() {
 	while(!quit) {
 		while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+                printf("Key was pressed!\n");
                 switch (e.key.keysym.sym) {
                     case SDLK_w:
                         keys["w"] = e.type == SDL_KEYDOWN;
