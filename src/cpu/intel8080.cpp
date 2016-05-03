@@ -916,9 +916,11 @@ void Intel8080::DAA() {
 // Input/Output Instructions
 void Intel8080::IN(uint8_t data) {
     reg[A] = inputs[data];
+    cycles += 10;
 }
 void Intel8080::OUT(uint8_t data) {
     outputs[data] = reg[A];
+    cycles += 10;
 }
 
 // Control Instructions
